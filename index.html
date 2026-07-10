@@ -15,9 +15,9 @@
     <section class="auth-card" aria-labelledby="authTitle">
       <p class="auth-kicker">Crowe Family 2.0</p>
       <h1 class="brand-title">Crowe Family 2.0</h1>
-      <h2 class="auth-title" id="authTitle"></h2>
-      <p class="auth-text" id="authText"></p>
-      <div id="authBody"></div>
+      <h2 class="auth-title" id="authTitle">Přihlášení</h2>
+      <p class="auth-text" id="authText">Přihlas se přes Discord. Postava se vybere automaticky podle tvého Discord účtu.</p>
+      <a class="discord-login-button" href="/api/discord-auth">Přihlásit se přes Discord</a>
       <p class="auth-error" id="authError" aria-live="polite"></p>
     </section>
   </main>
@@ -25,22 +25,76 @@
   <main class="app-shell" id="appShell" hidden>
     <header class="app-header">
       <div>
-        <p class="app-kicker">Přihlášená postava</p>
-        <h1 id="activeCharacterName">Crowe Family 2.0</h1>
+        <p class="app-kicker">Crowe Family 2.0</p>
+        <h1 id="activeCharacterName">Rodina Crowe</h1>
       </div>
-      <button class="auth-button" id="logoutButton" type="button">Odhlásit</button>
+
+      <div class="profile-menu-wrap">
+        <button class="profile-button" id="profileButton" type="button" aria-label="Profil" aria-expanded="false">
+          <img id="profileAvatar" src="images/zeke.png" alt="">
+        </button>
+        <div class="profile-menu" id="profileMenu" hidden>
+          <p id="profileName"></p>
+          <button type="button" id="wakeButton">Probudit</button>
+          <button type="button" id="sleepButton">Uspat</button>
+          <button type="button" id="characterInfoButton">Postava</button>
+          <button type="button" id="logoutButton">Odhlásit</button>
+        </div>
+      </div>
     </header>
 
-    <section class="dashboard-panel">
-      <p class="app-kicker">Verze 2.0</p>
-      <h2>První obrazovka je připravená.</h2>
-      <p>
-        Tady navážeme dalšími částmi: Firebase databází, Discord botem a funkcemi,
-        které si vybereme ze starého projektu.
-      </p>
+    <section class="dashboard-grid">
+      <article class="summary-panel">
+        <p class="app-kicker">Souhrn postavy</p>
+        <div class="summary-head">
+          <img id="characterPortrait" src="images/zeke.png" alt="">
+          <div>
+            <h2 id="summaryName">Ezekiel Crowe</h2>
+            <p id="summaryRole"></p>
+          </div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card">
+            <span>Stav</span>
+            <strong id="summaryStatus">Načítám...</strong>
+          </div>
+          <div class="stat-card">
+            <span>Aktuální sezení</span>
+            <strong id="summarySession">00:00:00</strong>
+          </div>
+          <div class="stat-card">
+            <span>Celkem vzhůru</span>
+            <strong id="summaryTotal">00:00:00</strong>
+          </div>
+          <div class="stat-card">
+            <span>Firebase</span>
+            <strong id="firebaseStatus">Připojuji...</strong>
+          </div>
+        </div>
+      </article>
+
+      <article class="members-panel">
+        <p class="app-kicker">Členové</p>
+        <h2>Časy rodiny</h2>
+        <div class="member-table" id="memberTable"></div>
+      </article>
     </section>
   </main>
 
-  <script src="app.js" defer></script>
+  <dialog class="character-dialog" id="characterDialog">
+    <button class="dialog-close" id="dialogCloseButton" type="button" aria-label="Zavřít">×</button>
+    <div class="dialog-layout">
+      <img id="dialogPortrait" src="images/zeke.png" alt="">
+      <div>
+        <p class="app-kicker" id="dialogKicker">Postava</p>
+        <h2 id="dialogName">Ezekiel Crowe</h2>
+        <dl class="character-facts" id="dialogFacts"></dl>
+        <p id="dialogOverview"></p>
+        <p id="dialogPersonality"></p>
+      </div>
+    </div>
+  </dialog>
+
+  <script type="module" src="app.js"></script>
 </body>
 </html>
