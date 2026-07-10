@@ -372,6 +372,7 @@ const boot = async () => {
   if (!session?.characterId) {
     refs.loginShell.hidden = false;
     refs.appShell.hidden = true;
+    window.scrollTo(0, 0);
     return;
   }
 
@@ -383,6 +384,7 @@ const boot = async () => {
 
   refs.loginShell.hidden = true;
   refs.appShell.hidden = false;
+  window.scrollTo(0, 0);
   renderProfile();
   renderSummary();
   startFirestore();
