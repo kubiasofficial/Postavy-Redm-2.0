@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crowe Family 2.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="login-shell" id="loginShell">
+    <div class="hero-backdrop" aria-hidden="true"></div>
+    <section class="auth-card" aria-labelledby="authTitle">
+      <p class="auth-kicker">Crowe Family 2.0</p>
+      <h1 class="brand-title">Crowe Family 2.0</h1>
+      <h2 class="auth-title" id="authTitle"></h2>
+      <p class="auth-text" id="authText"></p>
+      <div id="authBody"></div>
+      <p class="auth-error" id="authError" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <main class="app-shell" id="appShell" hidden>
+    <header class="app-header">
+      <div>
+        <p class="app-kicker">Přihlášená postava</p>
+        <h1 id="activeCharacterName">Crowe Family 2.0</h1>
+      </div>
+      <button class="auth-button" id="logoutButton" type="button">Odhlásit</button>
+    </header>
+
+    <section class="dashboard-panel">
+      <p class="app-kicker">Verze 2.0</p>
+      <h2>První obrazovka je připravená.</h2>
+      <p>
+        Tady navážeme dalšími částmi: Firebase databází, Discord botem a funkcemi,
+        které si vybereme ze starého projektu.
+      </p>
+    </section>
+  </main>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
