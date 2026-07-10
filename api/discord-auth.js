@@ -15,6 +15,17 @@ const getBaseUrl = (req) => {
 
 const encodeSession = (session) => Buffer.from(JSON.stringify(session), "utf8").toString("base64url");
 
+const redirectWithSession = (res, session) => {
+  res.writeHead(302, {
+    Location: "/",
+    "Set-Cookie": [
+      `crowe_session=${encodeSession(session)}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=604800`
+    ],
+    "Cache-Control": "no-store"
+  });
+  res.end();
+};
+
 module.exports = async (req, res) => {
   const clientId = process.env.DISCORD_APPLICATION_ID;
   const clientSecret = process.env.DISCORD_CLIENT_SECRET;
@@ -76,8 +87,7 @@ module.exports = async (req, res) => {
       characterId
     };
 
-    res.setHeader("Set-Cookie", `crowe_session=${encodeSession(session)}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=604800`);
-    res.redirect("/");
+    redirectWithSession(res, session);
   } catch (error) {
     res.redirect(`/?error=discord_login_failed`);
   }

@@ -14,6 +14,8 @@ const getCookie = (req, name) => {
 };
 
 module.exports = (req, res) => {
+  res.setHeader("Cache-Control", "no-store");
+
   const session = decodeSession(getCookie(req, "crowe_session"));
   if (!session?.discordId || !session?.characterId) {
     res.status(200).json({ authenticated: false });

@@ -355,7 +355,10 @@ const showLoginErrorFromUrl = () => {
 };
 
 const loadSession = async () => {
-  const response = await fetch("/api/discord-session");
+  const response = await fetch("/api/discord-session", {
+    cache: "no-store",
+    credentials: "include"
+  });
   if (!response.ok) return null;
   const data = await response.json();
   return data.authenticated ? data : null;
