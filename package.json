@@ -1,0 +1,8 @@
+{
+  "name": "postavy-redm-2-0",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "register:discord": "node scripts/register-discord-commands.js"
+  }
+}
