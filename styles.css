@@ -289,31 +289,43 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
 
 .side-character {
   position: fixed;
-  z-index: 0;
-  bottom: 0;
-  width: min(30vw, 430px);
-  max-height: 86vh;
+  z-index: 2;
+  bottom: 18px;
+  width: min(22vw, 330px);
+  max-height: 72vh;
   object-fit: contain;
   object-position: bottom center;
-  opacity: 0.94;
-  filter: drop-shadow(0 30px 62px rgba(0, 0, 0, 0.86)) saturate(1.04) contrast(1.03);
+  opacity: 1;
+  filter:
+    drop-shadow(0 28px 52px rgba(0, 0, 0, 0.96))
+    drop-shadow(0 0 28px rgba(247, 217, 157, 0.18))
+    saturate(1.12)
+    contrast(1.12)
+    brightness(1.16);
   pointer-events: none;
+  animation: side-character-idle 7s ease-in-out infinite alternate;
 }
 .side-character-left {
-  left: max(18px, calc((100vw - 1180px) / 2 - 350px));
+  left: clamp(18px, 3vw, 58px);
 }
 .side-character-right {
-  right: max(18px, calc((100vw - 1180px) / 2 - 350px));
+  right: clamp(18px, 3vw, 58px);
 }
 
 .hero-dashboard {
   position: relative;
-  z-index: 1;
+  z-index: 3;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
   gap: 18px;
   align-items: stretch;
   margin-bottom: 18px;
+}
+.family-status-grid,
+.dashboard-grid,
+.activity-panel {
+  position: relative;
+  z-index: 3;
 }
 .hero-copy {
   min-height: 300px;
@@ -781,6 +793,10 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
 @keyframes drift {
   from { transform: translateY(-30vh); }
   to { transform: translateY(110vh); }
+}
+@keyframes side-character-idle {
+  from { transform: translateY(0); }
+  to { transform: translateY(-10px); }
 }
 
 @media (max-width: 920px) {
