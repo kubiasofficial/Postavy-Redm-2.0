@@ -1,9 +1,97 @@
 const characters = {
-  zeke: { name: "Ezekiel Crowe", color: 0x8f1f2d },
-  violet: { name: "Violet Crowe", color: 0x7c4f86 },
-  william: { name: "William Hart", color: 0x6c7f8c },
-  eleanor: { name: "Eleanor Whitmore", color: 0xc08d78 },
-  silas: { name: "Silas Crowe", color: 0x615c8b }
+  zeke: {
+    name: 'Ezekiel "Zeke" Crowe',
+    wakeTitle: "Zeke je vzhůru",
+    sleepTitle: "Zeke usnul",
+    footer: "Zápis doktora • West Haven",
+    wakeMessages: [
+      "Zeke otevřel oči a ordinace ztichla tak rychle, jako by někdo přerušil modlitbu.",
+      "Zeke se probudil bez jediného slova. West Haven přesto pochopil, že se něco změnilo.",
+      "Zeke je vzhůru. Někde v saloonu právě někdo přehodnotil své plány.",
+      "Zeke otevřel oči a staré hříchy ve West Havenu si připomněly své jméno."
+    ],
+    sleepMessages: [
+      "Zeke konečně spí. West Haven si dovolil vydechnout, ale jen potichu.",
+      "Zeke zavřel oči. Nikdo neoslavuje nahlas, ale úleva je cítit.",
+      "Na chvíli není třeba sledovat dveře. Zeke odpočívá.",
+      "Zeke spí. Nikdo tomu nevěří dost na to, aby se přestal ohlížet."
+    ]
+  },
+  violet: {
+    name: "Violet Crowe",
+    wakeTitle: "Violet je vzhůru",
+    sleepTitle: "Violet spí",
+    footer: "Noční zápis • West Haven",
+    wakeMessages: [
+      "Violet otevřela oči a místnost se tvářila klidněji, než měla.",
+      "Violet se probudila bez hluku. Přesto se zdálo, že všechna tajemství udělala krok zpátky.",
+      "Violet je vzhůru a každé nevyřčené slovo v místnosti působí hlasitěji.",
+      "Violet nespí a pravda si dnes raději sedne rovně."
+    ],
+    sleepMessages: [
+      "Violet spí a West Haven se tváří, že to nic neznamená.",
+      "Violet zavřela oči. Někteří lidé přesto dál hlídají, co říkají.",
+      "Violet odpočívá. Její klid působí upraveněji než pravda.",
+      "Violet spí. West Haven si na chvíli může myslet, že mu něco neuniká."
+    ]
+  },
+  william: {
+    name: "William Hart",
+    wakeTitle: "William je vzhůru",
+    sleepTitle: "William spí",
+    footer: "Strážní poznámka • West Haven",
+    wakeMessages: [
+      "William otevřel oči a místnost působila o něco méně ztraceně.",
+      "William je na nohou. Hluk ve městě se nezmenšil, ale působí méně nebezpečně.",
+      "William se vrátil do dne s výrazem člověka, který už počítá možnosti.",
+      "William je na nohou. West Haven má znovu komu věřit, i když jen potichu."
+    ],
+    sleepMessages: [
+      "William spí a město má na chvíli jednoho ochránce méně na nohou.",
+      "William zavřel oči až ve chvíli, kdy si byl jistý, že ostatní mohou dýchat.",
+      "William odpočívá a zítřejší problémy si budou muset počkat.",
+      "William spí a West Haven se učí stát rovně bez jeho pohledu."
+    ]
+  },
+  eleanor: {
+    name: 'Eleanor "Ellie" Whitmore',
+    wakeTitle: "Ellie je vzhůru",
+    sleepTitle: "Ellie usnula",
+    footer: "Tichý zápis • West Haven",
+    wakeMessages: [
+      "Ellie otevřela oči a místnost působila o něco méně tvrdě.",
+      "Eleanor Whitmore je vzhůru. Někdo ve West Havenu dnes možná dostane trpělivější odpověď.",
+      "Ellie se probudila s klidem člověka, který i nový den zkusí nejdřív pochopit."
+    ],
+    sleepMessages: [
+      "Ellie usnula a West Haven si na chvíli nechal své obavy pro sebe.",
+      "Eleanor odpočívá. Ticho kolem ní je měkké, ale ne slabé.",
+      "Ellie spí a dnešní rozhovory konečně ztratily ostří."
+    ]
+  },
+  silas: {
+    name: 'Silas "Sil" Crowe',
+    wakeTitle: "Silas je vzhůru",
+    sleepTitle: "Silas odpočívá",
+    footer: "Tichý záznam • West Haven",
+    wakeMessages: [
+      "Silas otevřel oči a v místnosti bylo najednou méně jistoty než před chvílí.",
+      "Silas je vzhůru a někdo už určitě řekl víc, než měl.",
+      "Silas vstal bez spěchu. Přesto se zdálo, že už je pozdě.",
+      "Silas je vzhůru. Pravda se dnes bude schovávat hůř než obvykle."
+    ],
+    sleepMessages: [
+      "Silas spí. West Haven si oddechl, ale nikdo si není jistý, jestli to nebylo součástí plánu.",
+      "Silas odpočívá a město má chvíli pocit, že jeho tajemství zůstala v bezpečí.",
+      "Silas spí. Nikdo neví, jestli je to odpočinek, nebo další tah.",
+      "Silas zavřel oči a West Haven si dovolil zapomenout jen na pár minut."
+    ]
+  }
+};
+
+const colors = {
+  wake: 0x2f9b5f,
+  sleep: 0xb93642
 };
 
 const decodeSession = (value) => {
@@ -36,6 +124,8 @@ const formatDuration = (ms) => {
   return [hours, minutes, seconds].map((part) => String(part).padStart(2, "0")).join(":");
 };
 
+const pick = (items) => items[Math.floor(Math.random() * items.length)];
+
 module.exports = async (req, res) => {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
@@ -45,34 +135,42 @@ module.exports = async (req, res) => {
 
   const webhookUrl = process.env.DISCORD_STATUS_WEBHOOK_URL;
   if (!webhookUrl) {
-    res.status(500).json({ error: "Chybi DISCORD_STATUS_WEBHOOK_URL ve Vercelu." });
+    res.status(500).json({ error: "Chybí DISCORD_STATUS_WEBHOOK_URL ve Vercelu." });
     return;
   }
 
   const session = decodeSession(getCookie(req, "crowe_session"));
   if (!session?.characterId) {
-    res.status(401).json({ error: "Nejsi prihlaseny pres Discord." });
+    res.status(401).json({ error: "Nejsi přihlášený přes Discord." });
     return;
   }
 
   const body = await readJson(req);
   const character = characters[body.characterId];
   if (!character || session.characterId !== body.characterId) {
-    res.status(403).json({ error: "Tahle postava nepatri prihlasenemu Discord uctu." });
+    res.status(403).json({ error: "Tahle postava nepatří přihlášenému Discord účtu." });
     return;
   }
 
   const isWake = body.action === "wake";
   const isSleep = body.action === "sleep";
   if (!isWake && !isSleep) {
-    res.status(400).json({ error: "Neznama akce." });
+    res.status(400).json({ error: "Neznámá akce." });
     return;
   }
 
-  const title = isWake ? `${character.name} je vzhůru` : `${character.name} usnul/a`;
-  const description = isWake
-    ? `${character.name} se probouzí a je označen/a jako vzhůru.`
-    : `${character.name} usíná. Dnešní sezení: ${formatDuration(body.durationMs)}.`;
+  const actionName = isWake ? "Probuzení" : "Spánek";
+  const title = isWake ? character.wakeTitle : character.sleepTitle;
+  const message = pick(isWake ? character.wakeMessages : character.sleepMessages);
+  const fields = [
+    { name: "Postava", value: character.name, inline: true },
+    { name: "Discord", value: session.username || session.discordId, inline: true },
+    { name: "Stav", value: isWake ? "Vzhůru" : "Spí", inline: true }
+  ];
+
+  if (isSleep) {
+    fields.push({ name: "Délka sezení", value: formatDuration(body.durationMs), inline: true });
+  }
 
   const response = await fetch(webhookUrl, {
     method: "POST",
@@ -81,13 +179,12 @@ module.exports = async (req, res) => {
       username: "CrowesBot 2.0",
       embeds: [
         {
+          author: { name: actionName },
           title,
-          description,
-          color: character.color,
-          fields: [
-            { name: "Discord", value: session.username || session.discordId, inline: true },
-            { name: "Postava", value: character.name, inline: true }
-          ],
+          description: message,
+          color: isWake ? colors.wake : colors.sleep,
+          fields,
+          footer: { text: character.footer },
           timestamp: new Date().toISOString()
         }
       ]

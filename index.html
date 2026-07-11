@@ -6,14 +6,14 @@
   <title>Crowe Family 2.0</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <main class="login-shell" id="loginShell">
     <div class="hero-backdrop" aria-hidden="true"></div>
     <section class="auth-card" aria-labelledby="authTitle">
-      <p class="auth-kicker">Crowe Family 2.0</p>
+      <p class="eyebrow">Crowe Family 2.0</p>
       <h1 class="brand-title">Crowe Family 2.0</h1>
       <h2 class="auth-title" id="authTitle">Přihlášení</h2>
       <p class="auth-text" id="authText">Přihlas se přes Discord. Postava se vybere automaticky podle tvého Discord účtu.</p>
@@ -23,9 +23,16 @@
   </main>
 
   <main class="app-shell" id="appShell" hidden>
-    <header class="app-header">
+    <div class="app-atmosphere" aria-hidden="true">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <header class="topbar">
+      <button class="back-button" id="backToMenuButton" type="button" hidden>Zpět do menu</button>
       <div>
-        <p class="app-kicker">Crowe Family 2.0</p>
+        <p class="eyebrow">Crowe Family 2.0</p>
         <h1 id="activeCharacterName">Rodina Crowe</h1>
       </div>
 
@@ -43,57 +50,92 @@
       </div>
     </header>
 
-    <section class="dashboard-grid">
-      <article class="summary-panel">
-        <p class="app-kicker">Souhrn postavy</p>
-        <div class="summary-head">
+    <section class="menu-page app-page is-active" id="menuPage" aria-label="Hlavní menu">
+      <section class="hero-dashboard">
+        <div class="hero-copy">
+          <p class="eyebrow">Aktivní postava</p>
+          <h2 id="summaryName">Ezekiel “Zeke” Crowe</h2>
+          <p id="summaryRole"></p>
+          <div class="quick-actions">
+            <button class="primary-action" type="button" id="openCharacterPageButton">Otevřít postavu</button>
+            <button class="ghost-action" type="button" id="quickWakeButton">Probudit</button>
+            <button class="ghost-action" type="button" id="quickSleepButton">Uspat</button>
+          </div>
+        </div>
+        <figure class="hero-portrait">
           <img id="characterPortrait" src="images/zeke.png" alt="">
-          <div>
-            <h2 id="summaryName">Ezekiel Crowe</h2>
-            <p id="summaryRole"></p>
-          </div>
-        </div>
-        <div class="stat-grid">
-          <div class="stat-card">
-            <span>Stav</span>
-            <strong id="summaryStatus">Načítám...</strong>
-          </div>
-          <div class="stat-card">
-            <span>Aktuální sezení</span>
-            <strong id="summarySession">00:00:00</strong>
-          </div>
-          <div class="stat-card">
-            <span>Celkem vzhůru</span>
-            <strong id="summaryTotal">00:00:00</strong>
-          </div>
-          <div class="stat-card">
-            <span>Firebase</span>
-            <strong id="firebaseStatus">Připojuji...</strong>
-          </div>
-        </div>
-      </article>
+        </figure>
+      </section>
 
-      <article class="members-panel">
-        <p class="app-kicker">Členové</p>
-        <h2>Časy rodiny</h2>
-        <div class="member-table" id="memberTable"></div>
-      </article>
+      <section class="dashboard-grid">
+        <article class="summary-panel">
+          <p class="eyebrow">Souhrn postavy</p>
+          <div class="stat-grid">
+            <div class="stat-card state-card">
+              <span>Stav</span>
+              <strong id="summaryStatus">Načítám...</strong>
+            </div>
+            <div class="stat-card">
+              <span>Aktuální sezení</span>
+              <strong id="summarySession">00:00:00</strong>
+            </div>
+            <div class="stat-card">
+              <span>Celkem vzhůru</span>
+              <strong id="summaryTotal">00:00:00</strong>
+            </div>
+            <div class="stat-card">
+              <span>Firebase</span>
+              <strong id="firebaseStatus">Připojuji...</strong>
+            </div>
+          </div>
+        </article>
+
+        <article class="members-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Členové</p>
+              <h2>Časy rodiny</h2>
+            </div>
+            <span id="awakeCount">0 vzhůru</span>
+          </div>
+          <div class="member-table" id="memberTable"></div>
+        </article>
+      </section>
+    </section>
+
+    <section class="character-page app-page" id="characterPage" aria-label="Postava" hidden>
+      <section class="character-hero">
+        <figure>
+          <img id="characterPagePortrait" src="images/zeke.png" alt="">
+        </figure>
+        <div>
+          <p class="eyebrow" id="characterPageRole">Postava</p>
+          <h2 id="characterPageName">Ezekiel “Zeke” Crowe</h2>
+          <p class="character-quote" id="characterPageQuote"></p>
+          <dl class="character-facts" id="characterPageFacts"></dl>
+        </div>
+      </section>
+
+      <section class="character-detail-grid">
+        <article class="lore-panel wide-panel">
+          <p class="eyebrow">Lore</p>
+          <div id="characterPageLore"></div>
+        </article>
+        <article class="lore-panel">
+          <p class="eyebrow">Současnost a motivace</p>
+          <div class="overview-blocks" id="characterOverviewBlocks"></div>
+        </article>
+        <article class="lore-panel">
+          <p class="eyebrow">Vzhled</p>
+          <p id="characterPageAppearance"></p>
+        </article>
+        <article class="lore-panel">
+          <p class="eyebrow">Osobnost</p>
+          <p id="characterPagePersonality"></p>
+        </article>
+      </section>
     </section>
   </main>
-
-  <dialog class="character-dialog" id="characterDialog">
-    <button class="dialog-close" id="dialogCloseButton" type="button" aria-label="Zavřít">×</button>
-    <div class="dialog-layout">
-      <img id="dialogPortrait" src="images/zeke.png" alt="">
-      <div>
-        <p class="app-kicker" id="dialogKicker">Postava</p>
-        <h2 id="dialogName">Ezekiel Crowe</h2>
-        <dl class="character-facts" id="dialogFacts"></dl>
-        <p id="dialogOverview"></p>
-        <p id="dialogPersonality"></p>
-      </div>
-    </div>
-  </dialog>
 
   <script type="module" src="app.js"></script>
 </body>
