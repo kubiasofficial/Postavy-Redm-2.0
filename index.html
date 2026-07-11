@@ -45,6 +45,7 @@
           <button type="button" id="wakeButton">Probudit</button>
           <button type="button" id="sleepButton">Uspat</button>
           <button type="button" id="characterInfoButton">Postava</button>
+          <button type="button" id="adminButton" hidden>Admin</button>
           <button type="button" id="logoutButton">Odhlásit</button>
         </div>
       </div>
@@ -65,6 +66,21 @@
         <figure class="hero-portrait">
           <img id="characterPortrait" src="images/zeke.png" alt="">
         </figure>
+      </section>
+
+      <section class="family-status-grid" aria-label="Stav rodiny">
+        <article class="status-strip">
+          <span>Vzhůru</span>
+          <strong id="familyAwakeCount">0 / 5</strong>
+        </article>
+        <article class="status-strip">
+          <span>Dnes celkem</span>
+          <strong id="familyTodayTotal">00:00:00</strong>
+        </article>
+        <article class="status-strip">
+          <span>Poslední aktivita</span>
+          <strong id="lastActivityText">Zatím žádná</strong>
+        </article>
       </section>
 
       <section class="dashboard-grid">
@@ -101,6 +117,40 @@
           <div class="member-table" id="memberTable"></div>
         </article>
       </section>
+
+      <section class="activity-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Archiv událostí</p>
+            <h2>Poslední probuzení a spánky</h2>
+          </div>
+        </div>
+        <div class="event-list" id="eventList"></div>
+      </section>
+
+      <section class="admin-panel" id="adminPanel" hidden>
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Admin</p>
+            <h2>Správa rodiny</h2>
+          </div>
+          <span>Pouze Ezekiel</span>
+        </div>
+        <div class="admin-grid">
+          <label>
+            Postava
+            <select id="adminCharacterSelect"></select>
+          </label>
+          <label>
+            Poznámka
+            <input id="adminNoteInput" type="text" maxlength="120" placeholder="Krátká poznámka do historie">
+          </label>
+          <button class="ghost-action" type="button" id="adminForceWakeButton">Probudit ručně</button>
+          <button class="ghost-action" type="button" id="adminForceSleepButton">Uspat ručně</button>
+          <button class="ghost-action danger-action" type="button" id="adminResetButton">Reset času</button>
+        </div>
+        <p class="admin-status" id="adminStatus"></p>
+      </section>
     </section>
 
     <section class="character-page app-page" id="characterPage" aria-label="Postava" hidden>
@@ -117,6 +167,14 @@
       </section>
 
       <section class="character-detail-grid">
+        <article class="lore-panel">
+          <p class="eyebrow">Statistiky</p>
+          <div class="character-stats" id="characterPageStats"></div>
+        </article>
+        <article class="lore-panel">
+          <p class="eyebrow">Poslední události</p>
+          <div class="event-list compact" id="characterEventList"></div>
+        </article>
         <article class="lore-panel wide-panel">
           <p class="eyebrow">Lore</p>
           <div id="characterPageLore"></div>

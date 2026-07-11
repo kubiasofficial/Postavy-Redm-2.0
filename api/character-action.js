@@ -1,6 +1,7 @@
 const characters = {
   zeke: {
     name: 'Ezekiel "Zeke" Crowe',
+    portrait: "images/zeke.png",
     wakeTitle: "Zeke je vzhůru",
     sleepTitle: "Zeke usnul",
     footer: "Zápis doktora • West Haven",
@@ -19,6 +20,7 @@ const characters = {
   },
   violet: {
     name: "Violet Crowe",
+    portrait: "images/Violet.png",
     wakeTitle: "Violet je vzhůru",
     sleepTitle: "Violet spí",
     footer: "Noční zápis • West Haven",
@@ -37,6 +39,7 @@ const characters = {
   },
   william: {
     name: "William Hart",
+    portrait: "images/William.png",
     wakeTitle: "William je vzhůru",
     sleepTitle: "William spí",
     footer: "Strážní poznámka • West Haven",
@@ -55,6 +58,7 @@ const characters = {
   },
   eleanor: {
     name: 'Eleanor "Ellie" Whitmore',
+    portrait: "images/elie.png",
     wakeTitle: "Ellie je vzhůru",
     sleepTitle: "Ellie usnula",
     footer: "Tichý zápis • West Haven",
@@ -71,6 +75,7 @@ const characters = {
   },
   silas: {
     name: 'Silas "Sil" Crowe',
+    portrait: "images/Silas.png",
     wakeTitle: "Silas je vzhůru",
     sleepTitle: "Silas odpočívá",
     footer: "Tichý záznam • West Haven",
@@ -162,6 +167,7 @@ module.exports = async (req, res) => {
   const actionName = isWake ? "Probuzení" : "Spánek";
   const title = isWake ? character.wakeTitle : character.sleepTitle;
   const message = pick(isWake ? character.wakeMessages : character.sleepMessages);
+  const baseUrl = `https://${req.headers.host || "postavy-redm-2-0.vercel.app"}`;
   const fields = [
     { name: "Postava", value: character.name, inline: true },
     { name: "Discord", value: session.username || session.discordId, inline: true },
@@ -183,6 +189,7 @@ module.exports = async (req, res) => {
           title,
           description: message,
           color: isWake ? colors.wake : colors.sleep,
+          thumbnail: { url: `${baseUrl}/${character.portrait}` },
           fields,
           footer: { text: character.footer },
           timestamp: new Date().toISOString()

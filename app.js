@@ -20,7 +20,10 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 const statesRef = collection(db, "characterStates");
+const eventsRef = collection(db, "characterEvents");
 const localStatesKey = "croweFamily2CharacterStates";
+const localEventsKey = "croweFamily2CharacterEvents";
+const adminDiscordId = "417061947759001600";
 
 const characters = [
   {
@@ -185,6 +188,7 @@ const refs = {
   quickWakeButton: document.getElementById("quickWakeButton"),
   quickSleepButton: document.getElementById("quickSleepButton"),
   characterInfoButton: document.getElementById("characterInfoButton"),
+  adminButton: document.getElementById("adminButton"),
   openCharacterPageButton: document.getElementById("openCharacterPageButton"),
   logoutButton: document.getElementById("logoutButton"),
   characterPortrait: document.getElementById("characterPortrait"),
@@ -195,12 +199,25 @@ const refs = {
   summaryTotal: document.getElementById("summaryTotal"),
   firebaseStatus: document.getElementById("firebaseStatus"),
   awakeCount: document.getElementById("awakeCount"),
+  familyAwakeCount: document.getElementById("familyAwakeCount"),
+  familyTodayTotal: document.getElementById("familyTodayTotal"),
+  lastActivityText: document.getElementById("lastActivityText"),
   memberTable: document.getElementById("memberTable"),
+  eventList: document.getElementById("eventList"),
+  adminPanel: document.getElementById("adminPanel"),
+  adminCharacterSelect: document.getElementById("adminCharacterSelect"),
+  adminNoteInput: document.getElementById("adminNoteInput"),
+  adminForceWakeButton: document.getElementById("adminForceWakeButton"),
+  adminForceSleepButton: document.getElementById("adminForceSleepButton"),
+  adminResetButton: document.getElementById("adminResetButton"),
+  adminStatus: document.getElementById("adminStatus"),
   characterPagePortrait: document.getElementById("characterPagePortrait"),
   characterPageRole: document.getElementById("characterPageRole"),
   characterPageName: document.getElementById("characterPageName"),
   characterPageQuote: document.getElementById("characterPageQuote"),
   characterPageFacts: document.getElementById("characterPageFacts"),
+  characterPageStats: document.getElementById("characterPageStats"),
+  characterEventList: document.getElementById("characterEventList"),
   characterPageLore: document.getElementById("characterPageLore"),
   characterOverviewBlocks: document.getElementById("characterOverviewBlocks"),
   characterPageAppearance: document.getElementById("characterPageAppearance"),
@@ -210,6 +227,7 @@ const refs = {
 let session = null;
 let activeCharacter = null;
 let states = new Map();
+let events = [];
 let usingLocalFallback = false;
 
 const getCharacter = (characterId) => characters.find((character) => character.id === characterId);
@@ -219,6 +237,11 @@ const getDefaultState = (characterId) => ({
   status: "asleep",
   currentStartedAt: null,
   totalMs: 0,
+  todayMs: 0,
+  todayDate: new Date().toISOString().slice(0, 10),
+  lastSessionMs: 0,
+  longestSessionMs: 0,
+  lastActionAtMs: null,
   updatedAtMs: Date.now()
 });
 
@@ -226,6 +249,10 @@ const normalizeState = (characterId, state = {}) => ({
   ...getDefaultState(characterId),
   ...state,
   totalMs: Number(state.totalMs || 0),
+  todayMs: Number(state.todayMs || 0),
+  lastSessionMs: Number(state.lastSessionMs || 0),
+  longestSessionMs: Number(state.longestSessionMs || 0),
+  lastActionAtMs: state.lastActionAtMs ? Number(state.lastActionAtMs) : null,
   currentStartedAt: state.currentStartedAt || null,
   updatedAtMs: Number(state.updatedAtMs || Date.now())
 });
@@ -246,12 +273,43 @@ const saveLocalStates = () => {
   localStorage.setItem(localStatesKey, JSON.stringify(Object.fromEntries(states.entries())));
 };
 
+const loadLocalEvents = () => {
+  try {
+    events = JSON.parse(localStorage.getItem(localEventsKey) || "[]")
+      .filter((event) => characters.some((character) => character.id === event.characterId))
+      .sort((a, b) => Number(b.createdAtMs || 0) - Number(a.createdAtMs || 0))
+      .slice(0, 80);
+  } catch {
+    events = [];
+  }
+};
+
+const saveLocalEvents = () => {
+  localStorage.setItem(localEventsKey, JSON.stringify(events.slice(0, 80)));
+};
+
 const formatDuration = (ms) => {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
   return [hours, minutes, seconds].map((part) => String(part).padStart(2, "0")).join(":");
+};
+
+const getTodayKey = () => new Date().toISOString().slice(0, 10);
+
+const getReadableTime = (ms) => (
+  ms
+    ? new Intl.DateTimeFormat("cs-CZ", { hour: "2-digit", minute: "2-digit" }).format(new Date(ms))
+    : "Zatím nikdy"
+);
+
+const getWeekStartMs = () => {
+  const date = new Date();
+  const day = (date.getDay() + 6) % 7;
+  date.setHours(0, 0, 0, 0);
+  date.setDate(date.getDate() - day);
+  return date.getTime();
 };
 
 const getLiveMs = (state) => (
@@ -261,6 +319,19 @@ const getLiveMs = (state) => (
 );
 
 const getTotalMs = (state) => Number(state.totalMs || 0) + getLiveMs(state);
+
+const getTodayMs = (state) => {
+  const todayBase = state.todayDate === getTodayKey() ? Number(state.todayMs || 0) : 0;
+  return todayBase + getLiveMs(state);
+};
+
+const getWeekMs = (characterId, state) => {
+  const weekStart = getWeekStartMs();
+  const eventMs = events
+    .filter((event) => event.characterId === characterId && Number(event.createdAtMs || 0) >= weekStart)
+    .reduce((sum, event) => sum + Number(event.durationMs || 0), 0);
+  return eventMs + getLiveMs(state);
+};
 
 const setAppPage = (page) => {
   const isCharacter = page === "character";
@@ -272,6 +343,68 @@ const setAppPage = (page) => {
   refs.profileMenu.hidden = true;
   refs.profileButton.setAttribute("aria-expanded", "false");
   window.scrollTo(0, 0);
+};
+
+const renderEventList = (container, list) => {
+  container.replaceChildren();
+
+  if (!list.length) {
+    const empty = document.createElement("p");
+    empty.className = "empty-state";
+    empty.textContent = "Zatím tu není žádná událost.";
+    container.appendChild(empty);
+    return;
+  }
+
+  list.slice(0, 12).forEach((event) => {
+    const character = getCharacter(event.characterId);
+    if (!character) return;
+
+    const item = document.createElement("article");
+    item.className = `event-item ${event.action === "wake" ? "is-wake" : event.action === "sleep" ? "is-sleep" : "is-admin"}`;
+
+    const dot = document.createElement("span");
+    dot.className = "event-dot";
+
+    const body = document.createElement("div");
+    const title = document.createElement("strong");
+    title.textContent = event.title || (
+      event.action === "wake"
+        ? `${character.name} je vzhůru`
+        : event.action === "sleep"
+          ? `${character.name} usnul/a`
+          : `${character.name}: admin zásah`
+    );
+
+    const meta = document.createElement("small");
+    const parts = [getReadableTime(event.createdAtMs)];
+    if (event.durationMs) parts.push(`sezení ${formatDuration(event.durationMs)}`);
+    if (event.note) parts.push(event.note);
+    meta.textContent = parts.join(" · ");
+
+    body.append(title, meta);
+    item.append(dot, body);
+    container.appendChild(item);
+  });
+};
+
+const renderFamilyStatus = () => {
+  let awake = 0;
+  let todayTotal = 0;
+
+  characters.forEach((character) => {
+    const state = normalizeState(character.id, states.get(character.id));
+    if (state.status === "awake") awake += 1;
+    todayTotal += getTodayMs(state);
+  });
+
+  const lastEvent = events[0];
+  refs.familyAwakeCount.textContent = `${awake} / ${characters.length}`;
+  refs.familyTodayTotal.textContent = formatDuration(todayTotal);
+  refs.lastActivityText.textContent = lastEvent
+    ? `${getCharacter(lastEvent.characterId)?.listName || "Postava"} · ${lastEvent.action === "wake" ? "probuzení" : lastEvent.action === "sleep" ? "spánek" : "admin"}`
+    : "Zatím žádná";
+  renderEventList(refs.eventList, events);
 };
 
 const renderMemberTable = () => {
@@ -336,6 +469,8 @@ const renderSummary = () => {
   [refs.sleepButton, refs.quickSleepButton].forEach((button) => { button.disabled = !isAwake; });
 
   renderMemberTable();
+  renderFamilyStatus();
+  if (!refs.characterPage.hidden) renderCharacterPage(getCharacter(refs.characterPage.dataset.characterId) || activeCharacter);
 };
 
 const renderProfile = () => {
@@ -344,7 +479,80 @@ const renderProfile = () => {
   refs.profileName.textContent = `${session.username || "Discord"} · ${activeCharacter.listName}`;
 };
 
+const setupAdmin = () => {
+  const isAdmin = session?.discordId === adminDiscordId;
+  refs.adminButton.hidden = !isAdmin;
+  refs.adminPanel.hidden = !isAdmin;
+  if (!isAdmin) return;
+
+  refs.adminCharacterSelect.replaceChildren(
+    ...characters.map((character) => {
+      const option = document.createElement("option");
+      option.value = character.id;
+      option.textContent = character.name;
+      return option;
+    })
+  );
+  refs.adminCharacterSelect.value = activeCharacter.id;
+};
+
+const getAdminSelection = () => getCharacter(refs.adminCharacterSelect.value) || activeCharacter;
+
+const runAdminAction = async (action) => {
+  if (session?.discordId !== adminDiscordId) return;
+  const character = getAdminSelection();
+  const state = normalizeState(character.id, states.get(character.id));
+  const note = refs.adminNoteInput.value.trim();
+  const now = Date.now();
+
+  if (action === "wake") {
+    if (state.status === "awake") {
+      refs.adminStatus.textContent = "Postava už je vzhůru.";
+      return;
+    }
+    await persistState(character.id, {
+      ...state,
+      status: "awake",
+      currentStartedAt: now,
+      todayDate: getTodayKey(),
+      lastActionAtMs: now
+    });
+    await recordEvent({ characterId: character.id, action: "admin", note: note || "Ručně probuzeno", title: `${character.name} ručně probuzen/a` });
+  }
+
+  if (action === "sleep") {
+    const durationMs = getLiveMs(state);
+    const todayMs = state.todayDate === getTodayKey() ? Number(state.todayMs || 0) + durationMs : durationMs;
+    await persistState(character.id, {
+      ...state,
+      status: "asleep",
+      currentStartedAt: null,
+      totalMs: Number(state.totalMs || 0) + durationMs,
+      todayDate: getTodayKey(),
+      todayMs,
+      lastSessionMs: durationMs,
+      longestSessionMs: Math.max(Number(state.longestSessionMs || 0), durationMs),
+      lastActionAtMs: now
+    });
+    await recordEvent({ characterId: character.id, action: "admin", durationMs, note: note || "Ručně uspáno", title: `${character.name} ručně uspán/a` });
+  }
+
+  if (action === "reset") {
+    await persistState(character.id, {
+      ...getDefaultState(character.id),
+      updatedAtMs: now,
+      lastActionAtMs: now
+    });
+    await recordEvent({ characterId: character.id, action: "admin", note: note || "Reset času", title: `${character.name}: reset času` });
+  }
+
+  refs.adminStatus.textContent = "Admin akce byla uložena.";
+  refs.adminNoteInput.value = "";
+};
+
 const renderCharacterPage = (character = activeCharacter) => {
+  refs.characterPage.dataset.characterId = character.id;
+  const state = normalizeState(character.id, states.get(character.id));
   refs.characterPagePortrait.src = character.portrait;
   refs.characterPagePortrait.alt = character.name;
   refs.characterPageRole.textContent = character.role;
@@ -388,10 +596,42 @@ const renderCharacterPage = (character = activeCharacter) => {
 
   refs.characterPageAppearance.textContent = character.appearance;
   refs.characterPagePersonality.textContent = character.personality;
+
+  const statItems = [
+    ["Stav", state.status === "awake" ? "Vzhůru" : "Spí"],
+    ["Dnes", formatDuration(getTodayMs(state))],
+    ["Tento týden", formatDuration(getWeekMs(character.id, state))],
+    ["Aktuální sezení", formatDuration(getLiveMs(state))],
+    ["Poslední sezení", formatDuration(state.lastSessionMs)],
+    ["Nejdelší sezení", formatDuration(state.longestSessionMs)],
+    ["Celkem vzhůru", formatDuration(getTotalMs(state))],
+    ["Poslední aktivita", getReadableTime(state.lastActionAtMs)]
+  ];
+
+  refs.characterPageStats.replaceChildren(
+    ...statItems.map(([label, value]) => {
+      const item = document.createElement("div");
+      const span = document.createElement("span");
+      const strong = document.createElement("strong");
+      span.textContent = label;
+      strong.textContent = value;
+      item.append(span, strong);
+      return item;
+    })
+  );
+
+  renderEventList(
+    refs.characterEventList,
+    events.filter((event) => event.characterId === character.id)
+  );
 };
 
 const persistState = async (characterId, nextState) => {
-  states.set(characterId, normalizeState(characterId, nextState));
+  const payload = {
+    ...nextState,
+    updatedAtMs: Date.now()
+  };
+  states.set(characterId, normalizeState(characterId, payload));
   saveLocalStates();
   renderSummary();
 
@@ -399,15 +639,44 @@ const persistState = async (characterId, nextState) => {
 
   try {
     await setDoc(doc(statesRef, characterId), {
-      ...nextState,
+      ...payload,
       characterId,
-      updatedAtMs: Date.now(),
       updatedAt: serverTimestamp()
     }, { merge: true });
   } catch (error) {
     usingLocalFallback = true;
     refs.firebaseStatus.textContent = "Lokální režim";
     console.warn("Firestore write failed, using local fallback.", error);
+  }
+};
+
+const recordEvent = async ({ characterId, action, durationMs = 0, note = "", title = "" }) => {
+  const now = Date.now();
+  const event = {
+    id: `${now}-${characterId}-${action}`,
+    characterId,
+    action,
+    durationMs,
+    note,
+    title,
+    actorDiscordId: session?.discordId || "",
+    actorName: session?.username || "",
+    createdAtMs: now
+  };
+
+  events = [event, ...events.filter((item) => item.id !== event.id)].slice(0, 80);
+  saveLocalEvents();
+  renderFamilyStatus();
+  if (!refs.characterPage.hidden) renderCharacterPage(getCharacter(refs.characterPage.dataset.characterId) || activeCharacter);
+
+  if (usingLocalFallback) return;
+
+  try {
+    await setDoc(doc(eventsRef, event.id), { ...event, createdAt: serverTimestamp() }, { merge: true });
+  } catch (error) {
+    usingLocalFallback = true;
+    refs.firebaseStatus.textContent = "Lokální režim";
+    console.warn("Firestore event write failed, using local fallback.", error);
   }
 };
 
@@ -434,7 +703,14 @@ const wakeCharacter = async () => {
   await persistState(activeCharacter.id, {
     ...state,
     status: "awake",
-    currentStartedAt: Date.now()
+    currentStartedAt: Date.now(),
+    todayDate: getTodayKey(),
+    lastActionAtMs: Date.now()
+  });
+  await recordEvent({
+    characterId: activeCharacter.id,
+    action: "wake",
+    title: `${activeCharacter.name} je vzhůru`
   });
 };
 
@@ -444,11 +720,23 @@ const sleepCharacter = async () => {
 
   const durationMs = getLiveMs(state);
   await sendCharacterAction("sleep", durationMs);
+  const todayMs = state.todayDate === getTodayKey() ? Number(state.todayMs || 0) + durationMs : durationMs;
   await persistState(activeCharacter.id, {
     ...state,
     status: "asleep",
     currentStartedAt: null,
-    totalMs: Number(state.totalMs || 0) + durationMs
+    totalMs: Number(state.totalMs || 0) + durationMs,
+    todayDate: getTodayKey(),
+    todayMs,
+    lastSessionMs: durationMs,
+    longestSessionMs: Math.max(Number(state.longestSessionMs || 0), durationMs),
+    lastActionAtMs: Date.now()
+  });
+  await recordEvent({
+    characterId: activeCharacter.id,
+    action: "sleep",
+    durationMs,
+    title: `${activeCharacter.name} usnul/a`
   });
 };
 
@@ -475,6 +763,25 @@ const startFirestore = () => {
       refs.firebaseStatus.textContent = "Lokální režim";
       console.warn("Firestore blocked, using local fallback.", error);
       renderSummary();
+    });
+
+    onSnapshot(eventsRef, (snapshot) => {
+      const remoteEvents = [];
+      snapshot.forEach((eventDoc) => {
+        const data = eventDoc.data();
+        if (characters.some((character) => character.id === data.characterId)) {
+          remoteEvents.push({ id: eventDoc.id, ...data });
+        }
+      });
+      events = remoteEvents
+        .sort((a, b) => Number(b.createdAtMs || 0) - Number(a.createdAtMs || 0))
+        .slice(0, 80);
+      saveLocalEvents();
+      renderFamilyStatus();
+      if (!refs.characterPage.hidden) renderCharacterPage(getCharacter(refs.characterPage.dataset.characterId) || activeCharacter);
+    }, (error) => {
+      console.warn("Firestore events blocked, using local event history.", error);
+      renderFamilyStatus();
     });
   } catch (error) {
     usingLocalFallback = true;
@@ -514,6 +821,7 @@ const runCharacterAction = (action) => {
 const boot = async () => {
   showLoginErrorFromUrl();
   loadLocalStates();
+  loadLocalEvents();
 
   session = await loadSession();
   if (!session?.characterId) {
@@ -533,6 +841,7 @@ const boot = async () => {
   refs.appShell.hidden = false;
   setAppPage("menu");
   renderProfile();
+  setupAdmin();
   renderSummary();
   renderCharacterPage(activeCharacter);
   startFirestore();
@@ -551,11 +860,18 @@ refs.profileButton.addEventListener("click", () => {
   });
 });
 
+refs.adminButton.addEventListener("click", () => {
+  setAppPage("menu");
+  refs.adminPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+});
 refs.backToMenuButton.addEventListener("click", () => setAppPage("menu"));
 refs.wakeButton.addEventListener("click", () => runCharacterAction("wake"));
 refs.quickWakeButton.addEventListener("click", () => runCharacterAction("wake"));
 refs.sleepButton.addEventListener("click", () => runCharacterAction("sleep"));
 refs.quickSleepButton.addEventListener("click", () => runCharacterAction("sleep"));
+refs.adminForceWakeButton.addEventListener("click", () => runAdminAction("wake"));
+refs.adminForceSleepButton.addEventListener("click", () => runAdminAction("sleep"));
+refs.adminResetButton.addEventListener("click", () => runAdminAction("reset"));
 refs.logoutButton.addEventListener("click", () => {
   window.location.href = "/api/discord-logout";
 });
