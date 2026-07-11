@@ -70,6 +70,10 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
 }
 
 .login-shell .hero-backdrop {
+  background-image:
+    linear-gradient(90deg, rgba(3, 3, 2, 0.78), rgba(3, 3, 2, 0.2) 32%, rgba(3, 3, 2, 0.14) 66%, rgba(3, 3, 2, 0.76)),
+    linear-gradient(180deg, rgba(4, 4, 3, 0.36), rgba(4, 4, 3, 0.08) 38%, rgba(4, 4, 3, 0.72)),
+    url("images/crowe-family-2-login-clean.png");
   filter: saturate(1.08) contrast(1.04) brightness(0.82);
 }
 
