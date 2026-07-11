@@ -197,8 +197,9 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
   overflow-x: hidden;
   padding: 22px clamp(16px, 3vw, 34px) 44px;
   background:
-    linear-gradient(90deg, rgba(8, 7, 6, 0.96), rgba(8, 7, 6, 0.68), rgba(8, 7, 6, 0.92)),
-    url("images/crowe-family-2-login.png") center / cover fixed;
+    linear-gradient(90deg, rgba(8, 6, 4, 0.94), rgba(8, 6, 4, 0.52), rgba(8, 6, 4, 0.9)),
+    linear-gradient(180deg, rgba(6, 5, 4, 0.62), rgba(6, 5, 4, 0.82)),
+    url("images/crowe-office-dashboard.png") center / cover fixed;
   isolation: isolate;
 }
 .app-shell::before {
@@ -327,6 +328,47 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
   position: relative;
   z-index: 3;
 }
+.ledger-hero {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: end;
+  width: min(1180px, 100%);
+  margin: 0 auto 18px;
+  padding: clamp(22px, 4vw, 34px);
+  border: 1px solid rgba(200, 154, 84, 0.34);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(143, 31, 45, 0.12), transparent 38%),
+    linear-gradient(180deg, rgba(255, 230, 170, 0.08), transparent 42%),
+    rgba(8, 7, 5, 0.84);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(9px);
+}
+.ledger-hero h2 {
+  margin: 0;
+  color: var(--gold-soft);
+  font-family: Cinzel, Georgia, serif;
+  font-size: clamp(2.2rem, 5vw, 4.8rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+  text-shadow: 0 10px 34px rgba(0, 0, 0, 0.72);
+}
+.ledger-hero p:not(.eyebrow) {
+  max-width: 760px;
+  margin: 14px 0 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.ledger-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: min(430px, 100%);
+}
 .hero-copy {
   min-height: 300px;
   padding: clamp(22px, 4vw, 38px);
@@ -416,6 +458,12 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
   display: grid;
   grid-template-columns: minmax(0, 0.82fr) minmax(360px, 1.18fr);
   gap: 18px;
+}
+.dashboard-grid-ledger {
+  grid-template-columns: 1fr;
+}
+.dashboard-grid-ledger .members-panel {
+  min-height: 0;
 }
 .summary-panel,
 .members-panel,
@@ -534,19 +582,18 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
 
 .member-table {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(5, minmax(150px, 1fr));
+  gap: 14px;
   margin-top: 18px;
 }
 .member-row {
   display: grid;
-  grid-template-columns: 62px minmax(0, 1fr);
-  grid-template-rows: auto auto;
-  gap: 8px 12px;
+  grid-template-columns: 1fr;
+  gap: 10px;
   align-items: start;
   width: 100%;
-  min-height: 118px;
-  padding: 12px;
+  min-height: 260px;
+  padding: 14px;
   border: 1px solid rgba(200, 154, 84, 0.18);
   border-radius: 8px;
   background:
@@ -563,9 +610,8 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
   background: rgba(28, 20, 12, 0.68);
 }
 .member-row img {
-  grid-row: 1 / span 2;
-  width: 62px;
-  height: 86px;
+  width: 100%;
+  height: 124px;
   border-radius: 7px;
   object-fit: cover;
   object-position: center top;
@@ -604,11 +650,11 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
 }
 .member-time {
   align-self: end;
-  justify-self: end;
+  justify-self: start;
   color: var(--gold-soft);
   font-variant-numeric: tabular-nums;
   font-weight: 800;
-  font-size: 1.05rem;
+  font-size: 1.18rem;
 }
 
 .event-list {
@@ -930,9 +976,16 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
   .character-hero,
   .character-detail-grid,
   .dossier-grid,
+  .ledger-hero,
   .family-status-grid,
   .admin-grid {
     grid-template-columns: 1fr;
+  }
+  .ledger-actions {
+    justify-content: start;
+  }
+  .member-table {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .hero-portrait {
     min-height: 380px;
@@ -955,7 +1008,13 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
     display: grid;
   }
   .member-row {
-    grid-template-columns: 58px minmax(0, 1fr);
+    grid-template-columns: 78px minmax(0, 1fr);
+    min-height: 120px;
+  }
+  .member-row img {
+    grid-row: 1 / span 2;
+    width: 78px;
+    height: 96px;
   }
   .status-pill,
   .member-time {

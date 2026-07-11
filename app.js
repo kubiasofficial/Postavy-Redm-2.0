@@ -190,6 +190,9 @@ const refs = {
   sleepButton: document.getElementById("sleepButton"),
   quickWakeButton: document.getElementById("quickWakeButton"),
   quickSleepButton: document.getElementById("quickSleepButton"),
+  menuWakeButton: document.getElementById("menuWakeButton"),
+  menuSleepButton: document.getElementById("menuSleepButton"),
+  menuCharacterButton: document.getElementById("menuCharacterButton"),
   characterInfoButton: document.getElementById("characterInfoButton"),
   adminButton: document.getElementById("adminButton"),
   openCharacterPageButton: document.getElementById("openCharacterPageButton"),
@@ -472,13 +475,13 @@ const renderSummary = () => {
   const state = normalizeState(activeCharacter.id, states.get(activeCharacter.id));
   const isAwake = state.status === "awake";
 
-  refs.activeCharacterName.textContent = activeCharacter.name;
+  refs.activeCharacterName.textContent = refs.menuPage.hidden ? activeCharacter.name : "Rodinny ledger";
   refs.characterPortrait.src = activeCharacter.portrait;
   refs.characterPortrait.alt = activeCharacter.name;
   refs.summaryName.textContent = activeCharacter.name;
   refs.summaryRole.textContent = activeCharacter.overview;
   refs.summaryStatus.textContent = isAwake ? "Vzhůru" : "Spí";
-  refs.summaryStatus.closest(".stat-card").classList.toggle("is-awake", isAwake);
+  refs.summaryStatus.closest(".stat-card")?.classList.toggle("is-awake", isAwake);
   refs.summarySession.textContent = formatDuration(getLiveMs(state));
   refs.summaryTotal.textContent = formatDuration(getTotalMs(state));
   refs.heroStatusText.textContent = isAwake ? "Vzhuru" : "Spi";
@@ -487,8 +490,8 @@ const renderSummary = () => {
   refs.zekeSideLeft.hidden = activeCharacter.id !== "zeke";
   refs.zekeSideRight.hidden = activeCharacter.id !== "zeke";
 
-  [refs.wakeButton, refs.quickWakeButton].forEach((button) => { button.disabled = isAwake; });
-  [refs.sleepButton, refs.quickSleepButton].forEach((button) => { button.disabled = !isAwake; });
+  [refs.wakeButton, refs.quickWakeButton, refs.menuWakeButton].forEach((button) => { button.disabled = isAwake; });
+  [refs.sleepButton, refs.quickSleepButton, refs.menuSleepButton].forEach((button) => { button.disabled = !isAwake; });
 
   renderMemberTable();
   renderFamilyStatus();
@@ -938,7 +941,7 @@ refs.profileButton.addEventListener("click", () => {
   refs.profileButton.setAttribute("aria-expanded", String(!isOpen));
 });
 
-[refs.characterInfoButton, refs.openCharacterPageButton].forEach((button) => {
+[refs.characterInfoButton, refs.openCharacterPageButton, refs.menuCharacterButton].forEach((button) => {
   button.addEventListener("click", () => {
     renderCharacterPage(activeCharacter);
     setAppPage("character");
@@ -952,8 +955,10 @@ refs.adminButton.addEventListener("click", () => {
 refs.backToMenuButton.addEventListener("click", () => setAppPage("menu"));
 refs.wakeButton.addEventListener("click", () => runCharacterAction("wake"));
 refs.quickWakeButton.addEventListener("click", () => runCharacterAction("wake"));
+refs.menuWakeButton.addEventListener("click", () => runCharacterAction("wake"));
 refs.sleepButton.addEventListener("click", () => runCharacterAction("sleep"));
 refs.quickSleepButton.addEventListener("click", () => runCharacterAction("sleep"));
+refs.menuSleepButton.addEventListener("click", () => runCharacterAction("sleep"));
 refs.cancelSleepButton.addEventListener("click", () => setReportModal(false));
 refs.skipReportSleepButton.addEventListener("click", () => {
   refs.nightReportStatus.textContent = "Uspavam bez reportu...";

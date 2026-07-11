@@ -51,38 +51,35 @@
     </header>
 
     <section class="menu-page app-page is-active" id="menuPage" aria-label="Hlavní menu">
-      <img class="side-character side-character-left" id="zekeSideLeft" src="images/zeke-pose-left.png" alt="" hidden>
-      <img class="side-character side-character-right" id="zekeSideRight" src="images/zeke-pose-right.png" alt="" hidden>
-      <section class="hero-dashboard">
-        <div class="hero-copy">
-          <p class="eyebrow">Aktivní postava</p>
-          <h2 id="summaryName">Ezekiel “Zeke” Crowe</h2>
-          <p id="summaryRole"></p>
-          <div class="hero-live-strip" aria-label="Rychly stav postavy">
-            <span>
-              <small>Stav</small>
-              <strong id="heroStatusText">Spi</strong>
-            </span>
-            <span>
-              <small>Aktualni sezeni</small>
-              <strong id="heroSessionText">00:00:00</strong>
-            </span>
-            <span>
-              <small>Dnes</small>
-              <strong id="heroTodayText">00:00:00</strong>
-            </span>
-          </div>
-          <div class="quick-actions">
-            <button class="primary-action" type="button" id="openCharacterPageButton">Otevřít postavu</button>
-            <button class="ghost-action" type="button" id="quickWakeButton">Probudit</button>
-            <button class="ghost-action" type="button" id="quickSleepButton">Uspat</button>
-          </div>
-        </div>
-        <figure class="hero-portrait">
-          <img id="characterPortrait" src="images/zeke.png" alt="">
-        </figure>
-      </section>
+      <div class="menu-hidden-controls" hidden>
+        <img class="side-character side-character-left" id="zekeSideLeft" src="images/zeke-pose-left.png" alt="">
+        <img class="side-character side-character-right" id="zekeSideRight" src="images/zeke-pose-right.png" alt="">
+        <h2 id="summaryName">Ezekiel Zeke Crowe</h2>
+        <p id="summaryRole"></p>
+        <strong id="heroStatusText">Spi</strong>
+        <strong id="heroSessionText">00:00:00</strong>
+        <strong id="heroTodayText">00:00:00</strong>
+        <button type="button" id="openCharacterPageButton">Otevrit postavu</button>
+        <button type="button" id="quickWakeButton">Probudit</button>
+        <button type="button" id="quickSleepButton">Uspat</button>
+        <img id="characterPortrait" src="images/zeke.png" alt="">
+        <strong id="summaryStatus">Nacitam...</strong>
+        <strong id="summarySession">00:00:00</strong>
+        <strong id="summaryTotal">00:00:00</strong>
+      </div>
 
+      <section class="ledger-hero">
+        <div>
+          <p class="eyebrow">Crowe Family 2.0</p>
+          <h2>Rodinny ledger</h2>
+          <p>Hlavni prehled postav, casu a poslednich udalosti. Lore a detailni informace najdes az na karte konkretni postavy.</p>
+        </div>
+        <div class="ledger-actions">
+          <button class="ghost-action" type="button" id="menuWakeButton">Probudit moji postavu</button>
+          <button class="ghost-action" type="button" id="menuSleepButton">Uspat moji postavu</button>
+          <button class="primary-action" type="button" id="menuCharacterButton">Moje karta</button>
+        </div>
+      </section>
       <section class="family-status-grid" aria-label="Stav rodiny">
         <article class="status-strip">
           <span>Vzhůru</span>
@@ -98,29 +95,7 @@
         </article>
       </section>
 
-      <section class="dashboard-grid">
-        <article class="summary-panel">
-          <p class="eyebrow">Souhrn postavy</p>
-          <div class="stat-grid">
-            <div class="stat-card state-card">
-              <span>Stav</span>
-              <strong id="summaryStatus">Načítám...</strong>
-            </div>
-            <div class="stat-card">
-              <span>Aktuální sezení</span>
-              <strong id="summarySession">00:00:00</strong>
-            </div>
-            <div class="stat-card">
-              <span>Celkem vzhůru</span>
-              <strong id="summaryTotal">00:00:00</strong>
-            </div>
-            <div class="stat-card">
-              <span>Firebase</span>
-              <strong id="firebaseStatus">Připojuji...</strong>
-            </div>
-          </div>
-        </article>
-
+      <section class="dashboard-grid dashboard-grid-ledger">
         <article class="members-panel">
           <div class="panel-heading">
             <div>
