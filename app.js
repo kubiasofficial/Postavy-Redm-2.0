@@ -178,6 +178,7 @@ const refs = {
   activeCharacterName: document.getElementById("activeCharacterName"),
   menuPage: document.getElementById("menuPage"),
   characterPage: document.getElementById("characterPage"),
+  adminPage: document.getElementById("adminPage"),
   backToMenuButton: document.getElementById("backToMenuButton"),
   profileButton: document.getElementById("profileButton"),
   profileAvatar: document.getElementById("profileAvatar"),
@@ -335,11 +336,14 @@ const getWeekMs = (characterId, state) => {
 
 const setAppPage = (page) => {
   const isCharacter = page === "character";
-  refs.menuPage.hidden = isCharacter;
+  const isAdmin = page === "admin";
+  refs.menuPage.hidden = isCharacter || isAdmin;
   refs.characterPage.hidden = !isCharacter;
-  refs.menuPage.classList.toggle("is-active", !isCharacter);
+  refs.adminPage.hidden = !isAdmin;
+  refs.menuPage.classList.toggle("is-active", !isCharacter && !isAdmin);
   refs.characterPage.classList.toggle("is-active", isCharacter);
-  refs.backToMenuButton.hidden = !isCharacter;
+  refs.adminPage.classList.toggle("is-active", isAdmin);
+  refs.backToMenuButton.hidden = !isCharacter && !isAdmin;
   refs.profileMenu.hidden = true;
   refs.profileButton.setAttribute("aria-expanded", "false");
   window.scrollTo(0, 0);
@@ -861,8 +865,8 @@ refs.profileButton.addEventListener("click", () => {
 });
 
 refs.adminButton.addEventListener("click", () => {
-  setAppPage("menu");
-  refs.adminPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+  setupAdmin();
+  setAppPage("admin");
 });
 refs.backToMenuButton.addEventListener("click", () => setAppPage("menu"));
 refs.wakeButton.addEventListener("click", () => runCharacterAction("wake"));

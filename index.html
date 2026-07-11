@@ -12,11 +12,10 @@
 <body>
   <main class="login-shell" id="loginShell">
     <div class="hero-backdrop" aria-hidden="true"></div>
-    <section class="auth-card" aria-labelledby="authTitle">
+    <section class="auth-card auth-compact" aria-labelledby="authTitle">
       <p class="eyebrow">Crowe Family 2.0</p>
-      <h1 class="brand-title">Crowe Family 2.0</h1>
-      <h2 class="auth-title" id="authTitle">Přihlášení</h2>
-      <p class="auth-text" id="authText">Přihlas se přes Discord. Postava se vybere automaticky podle tvého Discord účtu.</p>
+      <h1 class="sr-only">Crowe Family 2.0</h1>
+      <h2 class="sr-only" id="authTitle">Přihlášení</h2>
       <a class="discord-login-button" href="/api/discord-auth">Přihlásit se přes Discord</a>
       <p class="auth-error" id="authError" aria-live="polite"></p>
     </section>
@@ -128,6 +127,9 @@
         <div class="event-list" id="eventList"></div>
       </section>
 
+    </section>
+
+    <section class="admin-page app-page" id="adminPage" aria-label="Admin" hidden>
       <section class="admin-panel" id="adminPanel" hidden>
         <div class="panel-heading">
           <div>
