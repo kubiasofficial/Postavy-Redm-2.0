@@ -177,6 +177,8 @@ const refs = {
   authError: document.getElementById("authError"),
   activeCharacterName: document.getElementById("activeCharacterName"),
   menuPage: document.getElementById("menuPage"),
+  zekeSideLeft: document.getElementById("zekeSideLeft"),
+  zekeSideRight: document.getElementById("zekeSideRight"),
   characterPage: document.getElementById("characterPage"),
   adminPage: document.getElementById("adminPage"),
   backToMenuButton: document.getElementById("backToMenuButton"),
@@ -468,6 +470,8 @@ const renderSummary = () => {
   refs.summaryStatus.closest(".stat-card").classList.toggle("is-awake", isAwake);
   refs.summarySession.textContent = formatDuration(getLiveMs(state));
   refs.summaryTotal.textContent = formatDuration(getTotalMs(state));
+  refs.zekeSideLeft.hidden = activeCharacter.id !== "zeke";
+  refs.zekeSideRight.hidden = activeCharacter.id !== "zeke";
 
   [refs.wakeButton, refs.quickWakeButton].forEach((button) => { button.disabled = isAwake; });
   [refs.sleepButton, refs.quickSleepButton].forEach((button) => { button.disabled = !isAwake; });

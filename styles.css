@@ -283,7 +283,27 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
 }
 
 .app-page.is-active {
+  position: relative;
   animation: page-in 520ms var(--ease) both;
+}
+
+.side-character {
+  position: fixed;
+  z-index: -1;
+  bottom: 0;
+  width: min(25vw, 360px);
+  max-height: 82vh;
+  object-fit: contain;
+  object-position: bottom center;
+  opacity: 0.72;
+  filter: drop-shadow(0 28px 58px rgba(0, 0, 0, 0.78)) saturate(0.92) contrast(0.96);
+  pointer-events: none;
+}
+.side-character-left {
+  left: max(18px, calc((100vw - 1180px) / 2 - 285px));
+}
+.side-character-right {
+  right: max(18px, calc((100vw - 1180px) / 2 - 285px));
 }
 
 .hero-dashboard {
@@ -762,6 +782,9 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
 }
 
 @media (max-width: 920px) {
+  .side-character {
+    display: none;
+  }
   .topbar {
     grid-template-columns: 1fr auto;
   }
