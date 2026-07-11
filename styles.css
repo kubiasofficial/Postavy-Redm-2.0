@@ -354,6 +354,38 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
   gap: 10px;
   margin-top: 24px;
 }
+.hero-live-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 24px;
+}
+.hero-live-strip span {
+  min-height: 78px;
+  padding: 13px;
+  border: 1px solid rgba(200, 154, 84, 0.26);
+  border-radius: 8px;
+  background:
+    linear-gradient(145deg, rgba(247, 217, 157, 0.08), transparent 55%),
+    rgba(5, 4, 3, 0.58);
+}
+.hero-live-strip small,
+.dossier-grid span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.hero-live-strip strong,
+.dossier-grid strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--gold-soft);
+  font-size: 1.2rem;
+  overflow-wrap: anywhere;
+}
 .hero-portrait {
   position: relative;
   min-height: 300px;
@@ -727,6 +759,24 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
 .wide-panel {
   grid-column: 1 / -1;
 }
+.dossier-panel {
+  background:
+    linear-gradient(90deg, rgba(143, 31, 45, 0.16), transparent 38%),
+    linear-gradient(180deg, rgba(255, 230, 170, 0.07), transparent 42%),
+    rgba(8, 7, 5, 0.88);
+}
+.dossier-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.dossier-grid div {
+  min-height: 92px;
+  padding: 14px;
+  border: 1px solid rgba(200, 154, 84, 0.24);
+  border-radius: 8px;
+  background: rgba(4, 4, 3, 0.56);
+}
 .lore-panel p {
   color: var(--muted);
   line-height: 1.85;
@@ -778,6 +828,67 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
   margin: 8px 0 0;
 }
 
+.report-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(143, 31, 45, 0.24), transparent 32%),
+    rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(8px);
+}
+.report-dialog {
+  width: min(720px, 100%);
+  padding: clamp(20px, 4vw, 30px);
+  border: 1px solid rgba(200, 154, 84, 0.42);
+  border-radius: 8px;
+  background:
+    linear-gradient(145deg, rgba(143, 31, 45, 0.18), transparent 44%),
+    rgba(8, 7, 5, 0.96);
+  box-shadow: 0 34px 120px rgba(0, 0, 0, 0.86);
+  animation: report-rise 260ms var(--ease) both;
+}
+.report-dialog h2 {
+  margin: 0;
+  color: var(--gold-soft);
+  font-family: Cinzel, Georgia, serif;
+  font-size: clamp(2rem, 5vw, 3.8rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+.report-dialog p:not(.eyebrow) {
+  color: var(--muted);
+  line-height: 1.65;
+}
+.report-dialog textarea {
+  width: 100%;
+  min-height: 160px;
+  resize: vertical;
+  border: 1px solid rgba(200, 154, 84, 0.32);
+  border-radius: 8px;
+  background: rgba(3, 3, 2, 0.84);
+  color: var(--paper);
+  padding: 14px;
+  line-height: 1.55;
+}
+.report-dialog textarea:focus {
+  outline: 2px solid rgba(247, 217, 157, 0.34);
+  border-color: rgba(247, 217, 157, 0.72);
+}
+.report-status {
+  min-height: 22px;
+}
+.report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+}
+
 @keyframes page-in {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
@@ -798,6 +909,10 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
   from { transform: translateY(0); }
   to { transform: translateY(-10px); }
 }
+@keyframes report-rise {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
 
 @media (max-width: 920px) {
   .side-character {
@@ -814,6 +929,7 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
   .dashboard-grid,
   .character-hero,
   .character-detail-grid,
+  .dossier-grid,
   .family-status-grid,
   .admin-grid {
     grid-template-columns: 1fr;
@@ -831,8 +947,12 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
   .stat-grid,
   .character-facts,
   .character-stats,
+  .hero-live-strip,
   .member-table {
     grid-template-columns: 1fr;
+  }
+  .report-actions {
+    display: grid;
   }
   .member-row {
     grid-template-columns: 58px minmax(0, 1fr);

@@ -58,6 +58,20 @@
           <p class="eyebrow">Aktivní postava</p>
           <h2 id="summaryName">Ezekiel “Zeke” Crowe</h2>
           <p id="summaryRole"></p>
+          <div class="hero-live-strip" aria-label="Rychly stav postavy">
+            <span>
+              <small>Stav</small>
+              <strong id="heroStatusText">Spi</strong>
+            </span>
+            <span>
+              <small>Aktualni sezeni</small>
+              <strong id="heroSessionText">00:00:00</strong>
+            </span>
+            <span>
+              <small>Dnes</small>
+              <strong id="heroTodayText">00:00:00</strong>
+            </span>
+          </div>
           <div class="quick-actions">
             <button class="primary-action" type="button" id="openCharacterPageButton">Otevřít postavu</button>
             <button class="ghost-action" type="button" id="quickWakeButton">Probudit</button>
@@ -171,6 +185,10 @@
       </section>
 
       <section class="character-detail-grid">
+        <article class="lore-panel dossier-panel wide-panel">
+          <p class="eyebrow">Dossier</p>
+          <div class="dossier-grid" id="characterDossierGrid"></div>
+        </article>
         <article class="lore-panel">
           <p class="eyebrow">Statistiky</p>
           <div class="character-stats" id="characterPageStats"></div>
@@ -198,6 +216,21 @@
       </section>
     </section>
   </main>
+
+  <div class="report-modal" id="nightReportModal" aria-hidden="true" hidden>
+    <section class="report-dialog" role="dialog" aria-modal="true" aria-labelledby="nightReportTitle">
+      <p class="eyebrow">Nocni report</p>
+      <h2 id="nightReportTitle">Uspat postavu</h2>
+      <p id="nightReportMeta">Report neni povinny. Kdyz ho vyplnis, odesle se do Discordu jako samostatny zapis.</p>
+      <textarea id="nightReportInput" maxlength="900" rows="6" placeholder="Co se dnes stalo? Klidne nech prazdne."></textarea>
+      <p class="report-status" id="nightReportStatus" aria-live="polite"></p>
+      <div class="report-actions">
+        <button class="ghost-action" type="button" id="cancelSleepButton">Zrusit</button>
+        <button class="ghost-action" type="button" id="skipReportSleepButton">Uspat bez reportu</button>
+        <button class="primary-action" type="button" id="submitReportSleepButton">Odeslat a uspat</button>
+      </div>
+    </section>
+  </div>
 
   <script type="module" src="app.js"></script>
 </body>

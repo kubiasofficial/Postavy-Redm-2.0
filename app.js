@@ -197,6 +197,9 @@ const refs = {
   characterPortrait: document.getElementById("characterPortrait"),
   summaryName: document.getElementById("summaryName"),
   summaryRole: document.getElementById("summaryRole"),
+  heroStatusText: document.getElementById("heroStatusText"),
+  heroSessionText: document.getElementById("heroSessionText"),
+  heroTodayText: document.getElementById("heroTodayText"),
   summaryStatus: document.getElementById("summaryStatus"),
   summarySession: document.getElementById("summarySession"),
   summaryTotal: document.getElementById("summaryTotal"),
@@ -221,10 +224,18 @@ const refs = {
   characterPageFacts: document.getElementById("characterPageFacts"),
   characterPageStats: document.getElementById("characterPageStats"),
   characterEventList: document.getElementById("characterEventList"),
+  characterDossierGrid: document.getElementById("characterDossierGrid"),
   characterPageLore: document.getElementById("characterPageLore"),
   characterOverviewBlocks: document.getElementById("characterOverviewBlocks"),
   characterPageAppearance: document.getElementById("characterPageAppearance"),
-  characterPagePersonality: document.getElementById("characterPagePersonality")
+  characterPagePersonality: document.getElementById("characterPagePersonality"),
+  nightReportModal: document.getElementById("nightReportModal"),
+  nightReportInput: document.getElementById("nightReportInput"),
+  nightReportMeta: document.getElementById("nightReportMeta"),
+  nightReportStatus: document.getElementById("nightReportStatus"),
+  cancelSleepButton: document.getElementById("cancelSleepButton"),
+  skipReportSleepButton: document.getElementById("skipReportSleepButton"),
+  submitReportSleepButton: document.getElementById("submitReportSleepButton")
 };
 
 let session = null;
@@ -470,6 +481,9 @@ const renderSummary = () => {
   refs.summaryStatus.closest(".stat-card").classList.toggle("is-awake", isAwake);
   refs.summarySession.textContent = formatDuration(getLiveMs(state));
   refs.summaryTotal.textContent = formatDuration(getTotalMs(state));
+  refs.heroStatusText.textContent = isAwake ? "Vzhuru" : "Spi";
+  refs.heroSessionText.textContent = formatDuration(getLiveMs(state));
+  refs.heroTodayText.textContent = formatDuration(getTodayMs(state));
   refs.zekeSideLeft.hidden = activeCharacter.id !== "zeke";
   refs.zekeSideRight.hidden = activeCharacter.id !== "zeke";
 
@@ -605,6 +619,30 @@ const renderCharacterPage = (character = activeCharacter) => {
   refs.characterPageAppearance.textContent = character.appearance;
   refs.characterPagePersonality.textContent = character.personality;
 
+  const lastCharacterEvent = events.find((event) => event.characterId === character.id);
+  const dossierItems = [
+    ["Volaci jmeno", character.listName],
+    ["Rok deje", character.year],
+    ["Puvod", character.origin],
+    ["Role", character.role],
+    ["Dnes vzhuru", formatDuration(getTodayMs(state))],
+    ["Tento tyden", formatDuration(getWeekMs(character.id, state))],
+    ["Nejdelsi sezeni", formatDuration(state.longestSessionMs)],
+    ["Posledni stopa", lastCharacterEvent ? getReadableTime(lastCharacterEvent.createdAtMs) : "Zatim zadna"]
+  ];
+
+  refs.characterDossierGrid.replaceChildren(
+    ...dossierItems.map(([label, value]) => {
+      const item = document.createElement("div");
+      const span = document.createElement("span");
+      const strong = document.createElement("strong");
+      span.textContent = label;
+      strong.textContent = value;
+      item.append(span, strong);
+      return item;
+    })
+  );
+
   const statItems = [
     ["Stav", state.status === "awake" ? "Vzhůru" : "Spí"],
     ["Dnes", formatDuration(getTodayMs(state))],
@@ -703,6 +741,38 @@ const sendCharacterAction = async (action, durationMs = 0) => {
   if (!response.ok) throw new Error(data.error || "Akci se nepodařilo odeslat.");
 };
 
+const sendNightReport = async ({ reportText, durationMs }) => {
+  if (!reportText.trim()) return;
+
+  const response = await fetch("/api/night-report", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      characterId: activeCharacter.id,
+      durationMs,
+      reportText: reportText.trim()
+    })
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || "Report se nepodarilo odeslat.");
+};
+
+const setReportModal = (open) => {
+  refs.nightReportModal.hidden = !open;
+  refs.nightReportModal.setAttribute("aria-hidden", String(!open));
+  if (open) refs.nightReportInput.focus();
+};
+
+const openSleepReport = () => {
+  const state = normalizeState(activeCharacter.id, states.get(activeCharacter.id));
+  if (state.status !== "awake") return;
+  refs.nightReportInput.value = "";
+  refs.nightReportStatus.textContent = "";
+  refs.nightReportMeta.textContent = `Sezeni: ${formatDuration(getLiveMs(state))}. Report neni povinny.`;
+  setReportModal(true);
+};
+
 const wakeCharacter = async () => {
   const state = normalizeState(activeCharacter.id, states.get(activeCharacter.id));
   if (state.status === "awake") return;
@@ -722,12 +792,13 @@ const wakeCharacter = async () => {
   });
 };
 
-const sleepCharacter = async () => {
+const sleepCharacter = async (reportText = "") => {
   const state = normalizeState(activeCharacter.id, states.get(activeCharacter.id));
   if (state.status !== "awake") return;
 
   const durationMs = getLiveMs(state);
   await sendCharacterAction("sleep", durationMs);
+  await sendNightReport({ reportText, durationMs });
   const todayMs = state.todayDate === getTodayKey() ? Number(state.todayMs || 0) + durationMs : durationMs;
   await persistState(activeCharacter.id, {
     ...state,
@@ -744,6 +815,7 @@ const sleepCharacter = async () => {
     characterId: activeCharacter.id,
     action: "sleep",
     durationMs,
+    note: reportText.trim() ? `Report: ${reportText.trim()}` : "",
     title: `${activeCharacter.name} usnul/a`
   });
 };
@@ -820,7 +892,12 @@ const loadSession = async () => {
 };
 
 const runCharacterAction = (action) => {
-  const task = action === "wake" ? wakeCharacter : sleepCharacter;
+  if (action === "sleep") {
+    openSleepReport();
+    return;
+  }
+
+  const task = wakeCharacter;
   task().catch((error) => {
     refs.firebaseStatus.textContent = error.message;
   });
@@ -877,6 +954,24 @@ refs.wakeButton.addEventListener("click", () => runCharacterAction("wake"));
 refs.quickWakeButton.addEventListener("click", () => runCharacterAction("wake"));
 refs.sleepButton.addEventListener("click", () => runCharacterAction("sleep"));
 refs.quickSleepButton.addEventListener("click", () => runCharacterAction("sleep"));
+refs.cancelSleepButton.addEventListener("click", () => setReportModal(false));
+refs.skipReportSleepButton.addEventListener("click", () => {
+  refs.nightReportStatus.textContent = "Uspavam bez reportu...";
+  sleepCharacter("").then(() => {
+    setReportModal(false);
+  }).catch((error) => {
+    refs.nightReportStatus.textContent = error.message;
+  });
+});
+refs.submitReportSleepButton.addEventListener("click", () => {
+  const reportText = refs.nightReportInput.value.trim();
+  refs.nightReportStatus.textContent = reportText ? "Odesilam report a uspavam..." : "Uspavam bez reportu...";
+  sleepCharacter(reportText).then(() => {
+    setReportModal(false);
+  }).catch((error) => {
+    refs.nightReportStatus.textContent = error.message;
+  });
+});
 refs.adminForceWakeButton.addEventListener("click", () => runAdminAction("wake"));
 refs.adminForceSleepButton.addEventListener("click", () => runAdminAction("sleep"));
 refs.adminResetButton.addEventListener("click", () => runAdminAction("reset"));
