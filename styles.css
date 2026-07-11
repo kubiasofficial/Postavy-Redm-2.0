@@ -289,24 +289,26 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
 
 .side-character {
   position: fixed;
-  z-index: -1;
+  z-index: 0;
   bottom: 0;
-  width: min(25vw, 360px);
-  max-height: 82vh;
+  width: min(30vw, 430px);
+  max-height: 86vh;
   object-fit: contain;
   object-position: bottom center;
-  opacity: 0.72;
-  filter: drop-shadow(0 28px 58px rgba(0, 0, 0, 0.78)) saturate(0.92) contrast(0.96);
+  opacity: 0.94;
+  filter: drop-shadow(0 30px 62px rgba(0, 0, 0, 0.86)) saturate(1.04) contrast(1.03);
   pointer-events: none;
 }
 .side-character-left {
-  left: max(18px, calc((100vw - 1180px) / 2 - 285px));
+  left: max(18px, calc((100vw - 1180px) / 2 - 350px));
 }
 .side-character-right {
-  right: max(18px, calc((100vw - 1180px) / 2 - 285px));
+  right: max(18px, calc((100vw - 1180px) / 2 - 350px));
 }
 
 .hero-dashboard {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
   gap: 18px;
