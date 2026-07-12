@@ -168,15 +168,21 @@ module.exports = async (req, res) => {
   const title = isWake ? character.wakeTitle : character.sleepTitle;
   const message = pick(isWake ? character.wakeMessages : character.sleepMessages);
   const baseUrl = `https://${req.headers.host || "postavy-redm-2-0.vercel.app"}`;
+  const statusText = isWake ? "Postava je vzhůru" : "Postava spí";
+  const themeLine = isWake
+    ? "Zelený zápis znamená, že postava právě vstoupila do hry."
+    : "Červený zápis znamená, že postava ukončila aktuální sezení.";
   const fields = [
+    { name: "Stav", value: statusText, inline: true },
     { name: "Postava", value: character.name, inline: true },
-    { name: "Discord", value: session.username || session.discordId, inline: true },
-    { name: "Stav", value: isWake ? "Vzhůru" : "Spí", inline: true }
+    { name: "Discord účet", value: session.username || session.discordId, inline: true }
   ];
 
   if (isSleep) {
     fields.push({ name: "Délka sezení", value: formatDuration(body.durationMs), inline: true });
   }
+
+  fields.push({ name: "Zápis", value: themeLine, inline: false });
 
   const response = await fetch(webhookUrl, {
     method: "POST",
@@ -185,13 +191,13 @@ module.exports = async (req, res) => {
       username: "CrowesBot 2.0",
       embeds: [
         {
-          author: { name: actionName },
+          author: { name: `Crowe Family 2.0 - ${actionName}` },
           title,
-          description: message,
+          description: `> ${message}`,
           color: isWake ? colors.wake : colors.sleep,
           thumbnail: { url: `${baseUrl}/${character.portrait}` },
           fields,
-          footer: { text: character.footer },
+          footer: { text: `${character.footer} - Discord status` },
           timestamp: new Date().toISOString()
         }
       ]

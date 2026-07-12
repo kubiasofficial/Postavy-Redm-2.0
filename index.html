@@ -108,15 +108,22 @@
         </article>
       </section>
 
-      <section class="activity-panel">
+      <section class="photo-rotation-panel" aria-label="Fotky z Discordu">
         <div class="panel-heading">
           <div>
-            <p class="eyebrow">Archiv událostí</p>
-            <h2>Poslední probuzení a spánky</h2>
+            <p class="eyebrow">Discord galerie</p>
+            <h2>Fotky z West Havenu</h2>
           </div>
+          <span id="galleryCount">Nacitam</span>
         </div>
-        <div class="event-list" id="eventList"></div>
+        <figure class="gallery-frame" id="discordGalleryFrame">
+          <img id="discordGalleryImage" src="" alt="">
+          <figcaption class="gallery-caption" id="discordGalleryCaption"></figcaption>
+          <p class="gallery-empty" id="discordGalleryEmpty">Ceka se na fotky z Discordu.</p>
+        </figure>
       </section>
+
+      <div id="eventList" hidden></div>
 
     </section>
 

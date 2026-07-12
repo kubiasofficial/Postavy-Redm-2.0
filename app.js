@@ -212,6 +212,11 @@ const refs = {
   familyTodayTotal: document.getElementById("familyTodayTotal"),
   lastActivityText: document.getElementById("lastActivityText"),
   memberTable: document.getElementById("memberTable"),
+  galleryCount: document.getElementById("galleryCount"),
+  discordGalleryFrame: document.getElementById("discordGalleryFrame"),
+  discordGalleryImage: document.getElementById("discordGalleryImage"),
+  discordGalleryCaption: document.getElementById("discordGalleryCaption"),
+  discordGalleryEmpty: document.getElementById("discordGalleryEmpty"),
   eventList: document.getElementById("eventList"),
   adminPanel: document.getElementById("adminPanel"),
   adminCharacterSelect: document.getElementById("adminCharacterSelect"),
@@ -246,6 +251,9 @@ let activeCharacter = null;
 let states = new Map();
 let events = [];
 let usingLocalFallback = false;
+let galleryPhotos = [];
+let galleryIndex = 0;
+let galleryTimer = null;
 
 const getCharacter = (characterId) => characters.find((character) => character.id === characterId);
 
@@ -468,6 +476,69 @@ const renderMemberTable = () => {
   });
 
   refs.awakeCount.textContent = `${awake} vzhůru`;
+};
+
+const setGalleryMessage = (message) => {
+  refs.discordGalleryFrame?.classList.remove("is-ready");
+  if (refs.discordGalleryImage) refs.discordGalleryImage.removeAttribute("src");
+  if (refs.discordGalleryCaption) refs.discordGalleryCaption.textContent = "";
+  if (refs.discordGalleryEmpty) refs.discordGalleryEmpty.textContent = message;
+  if (refs.galleryCount) refs.galleryCount.textContent = "0 fotek";
+};
+
+const renderGalleryPhoto = () => {
+  if (!refs.discordGalleryFrame || !refs.discordGalleryImage || galleryPhotos.length === 0) return;
+
+  const photo = galleryPhotos[galleryIndex % galleryPhotos.length];
+  refs.discordGalleryFrame.classList.remove("is-ready");
+  refs.discordGalleryImage.alt = `Fotka z Discordu od ${photo.authorName || "West Haven"}`;
+  refs.discordGalleryCaption.textContent = [
+    photo.authorName || "Discord",
+    photo.caption || photo.filename || ""
+  ].filter(Boolean).join(" - ");
+  refs.discordGalleryEmpty.textContent = "";
+
+  const markReady = () => refs.discordGalleryFrame.classList.add("is-ready");
+  refs.discordGalleryImage.onload = markReady;
+  refs.discordGalleryImage.onerror = () => setGalleryMessage("Fotku se nepodarilo nacist.");
+  refs.discordGalleryImage.src = photo.proxyUrl || photo.url;
+  if (refs.discordGalleryImage.complete && refs.discordGalleryImage.naturalWidth > 0) markReady();
+};
+
+const startGalleryRotation = () => {
+  if (galleryTimer) clearInterval(galleryTimer);
+  if (galleryPhotos.length <= 1) return;
+
+  galleryTimer = setInterval(() => {
+    galleryIndex = (galleryIndex + 1) % galleryPhotos.length;
+    renderGalleryPhoto();
+  }, 8000);
+};
+
+const loadDiscordGallery = async () => {
+  if (!refs.discordGalleryFrame) return;
+
+  try {
+    const response = await fetch("/api/discord-gallery?limit=36", { cache: "no-store" });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || "Galerii se nepodarilo nacist.");
+
+    galleryPhotos = Array.isArray(data.photos)
+      ? data.photos.filter((photo) => photo.url || photo.proxyUrl)
+      : [];
+    galleryIndex = 0;
+
+    if (refs.galleryCount) refs.galleryCount.textContent = `${galleryPhotos.length} fotek`;
+    if (!galleryPhotos.length) {
+      setGalleryMessage("V kanalu zatim nejsou zadne fotky.");
+      return;
+    }
+
+    renderGalleryPhoto();
+    startGalleryRotation();
+  } catch (error) {
+    setGalleryMessage(error.message || "Galerii se nepodarilo nacist.");
+  }
 };
 
 const renderSummary = () => {
@@ -933,6 +1004,7 @@ const boot = async () => {
   renderSummary();
   renderCharacterPage(activeCharacter);
   startFirestore();
+  loadDiscordGallery();
 };
 
 refs.profileButton.addEventListener("click", () => {
