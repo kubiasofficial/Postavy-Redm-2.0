@@ -243,7 +243,11 @@ const refs = {
   nightReportStatus: document.getElementById("nightReportStatus"),
   cancelSleepButton: document.getElementById("cancelSleepButton"),
   skipReportSleepButton: document.getElementById("skipReportSleepButton"),
-  submitReportSleepButton: document.getElementById("submitReportSleepButton")
+  submitReportSleepButton: document.getElementById("submitReportSleepButton"),
+  actionToast: document.getElementById("actionToast"),
+  actionToastIcon: document.getElementById("actionToastIcon"),
+  actionToastTitle: document.getElementById("actionToastTitle"),
+  actionToastText: document.getElementById("actionToastText")
 };
 
 let session = null;
@@ -254,6 +258,12 @@ let usingLocalFallback = false;
 let galleryPhotos = [];
 let galleryIndex = 0;
 let galleryTimer = null;
+let toastTimer = null;
+
+const actionSounds = {
+  wake: new Audio("sound/Probudit.MP3"),
+  sleep: new Audio("sound/Uspat.MP3")
+};
 
 const getCharacter = (characterId) => characters.find((character) => character.id === characterId);
 
@@ -832,6 +842,44 @@ const sendNightReport = async ({ reportText, durationMs }) => {
   if (!response.ok) throw new Error(data.error || "Report se nepodarilo odeslat.");
 };
 
+const playActionSound = (action) => {
+  const sound = actionSounds[action];
+  if (!sound) return;
+
+  sound.pause();
+  sound.currentTime = 0;
+  sound.play().catch(() => {
+    // Browser autoplay settings can block sound if the click gesture expired.
+  });
+};
+
+const showActionToast = (action, characterName) => {
+  if (!refs.actionToast || !refs.actionToastIcon || !refs.actionToastTitle || !refs.actionToastText) return;
+
+  const isWake = action === "wake";
+  clearTimeout(toastTimer);
+  refs.actionToast.hidden = false;
+  refs.actionToast.classList.remove("is-wake", "is-sleep", "is-visible");
+  refs.actionToastIcon.textContent = isWake ? "◆" : "◇";
+  refs.actionToastTitle.textContent = isWake
+    ? `${characterName} se probudil/a`
+    : `${characterName} usnul/a`;
+  refs.actionToastText.textContent = isWake
+    ? "Postava je oznacena jako vzhuru."
+    : "Postava je ulozena ke spanku.";
+  refs.actionToast.classList.add(isWake ? "is-wake" : "is-sleep");
+
+  requestAnimationFrame(() => refs.actionToast.classList.add("is-visible"));
+  playActionSound(action);
+
+  toastTimer = setTimeout(() => {
+    refs.actionToast.classList.remove("is-visible");
+    toastTimer = setTimeout(() => {
+      refs.actionToast.hidden = true;
+    }, 260);
+  }, 3600);
+};
+
 const setReportModal = (open) => {
   refs.nightReportModal.hidden = !open;
   refs.nightReportModal.setAttribute("aria-hidden", String(!open));
@@ -864,6 +912,7 @@ const wakeCharacter = async () => {
     action: "wake",
     title: `${activeCharacter.name} je vzhůru`
   });
+  showActionToast("wake", activeCharacter.name);
 };
 
 const sleepCharacter = async (reportText = "") => {
@@ -892,6 +941,7 @@ const sleepCharacter = async (reportText = "") => {
     note: reportText.trim() ? `Report: ${reportText.trim()}` : "",
     title: `${activeCharacter.name} usnul/a`
   });
+  showActionToast("sleep", activeCharacter.name);
 };
 
 const startFirestore = () => {
