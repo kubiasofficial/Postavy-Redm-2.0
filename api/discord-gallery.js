@@ -22,6 +22,25 @@ const cleanCaption = (content = "") => (
 
 const normalizeUrl = (url = "") => String(url).trim();
 
+const fetchDiscordJson = async (path, token) => {
+  const response = await fetch(`${DISCORD_API_BASE}${path}`, {
+    headers: {
+      Authorization: `Bot ${token}`
+    }
+  });
+
+  const text = await response.text();
+  const data = text ? JSON.parse(text) : null;
+  if (!response.ok) {
+    const error = new Error("Discord request failed");
+    error.status = response.status;
+    error.details = data || text;
+    throw error;
+  }
+
+  return data;
+};
+
 const getRequestedLimit = (value) => {
   const parsed = Number.parseInt(String(value || ""), 10);
   if (!Number.isFinite(parsed) || parsed <= 0) return DEFAULT_PHOTO_LIMIT;
@@ -34,6 +53,58 @@ const getAuthorName = (message) => (
   message.author?.username ||
   "Neznámý autor"
 );
+
+const getMessagePhotoCount = (message) => (
+  Array.isArray(message.attachments)
+    ? message.attachments.filter(isPhotoAttachment).length
+    : 0
+);
+
+const getDebugPayload = async (token, messages, photos) => {
+  const [bot, channel] = await Promise.all([
+    fetchDiscordJson("/users/@me", token),
+    fetchDiscordJson(`/channels/${GALLERY_CHANNEL_ID}`, token)
+  ]);
+
+  return {
+    bot: {
+      id: bot.id,
+      username: bot.username,
+      globalName: bot.global_name || null
+    },
+    channel: {
+      id: channel.id,
+      name: channel.name || null,
+      type: channel.type,
+      guildId: channel.guild_id || null,
+      parentId: channel.parent_id || null
+    },
+    counts: {
+      messages: messages.length,
+      photos: photos.length,
+      messagesWithAttachments: messages.filter((message) => Array.isArray(message.attachments) && message.attachments.length > 0).length,
+      matchingPhotoAttachments: messages.reduce((count, message) => count + getMessagePhotoCount(message), 0),
+      embeds: messages.reduce((count, message) => count + (Array.isArray(message.embeds) ? message.embeds.length : 0), 0)
+    },
+    sampleMessages: messages.slice(0, 5).map((message) => ({
+      id: message.id,
+      authorId: message.author?.id || null,
+      authorName: getAuthorName(message),
+      attachmentCount: Array.isArray(message.attachments) ? message.attachments.length : 0,
+      photoAttachmentCount: getMessagePhotoCount(message),
+      embedCount: Array.isArray(message.embeds) ? message.embeds.length : 0,
+      attachmentTypes: Array.isArray(message.attachments)
+        ? message.attachments.map((attachment) => ({
+            filename: attachment.filename || null,
+            contentType: attachment.content_type || null,
+            width: attachment.width || null,
+            height: attachment.height || null
+          }))
+        : [],
+      createdAt: message.timestamp || null
+    }))
+  };
+};
 
 module.exports = async (req, res) => {
   if (req.method !== "GET") {
@@ -107,8 +178,18 @@ module.exports = async (req, res) => {
       .slice(0, photoLimit);
 
     res.setHeader("Cache-Control", "s-maxage=120, stale-while-revalidate=600");
+    if (String(req.query?.debug || "") === "1") {
+      return res.status(200).json({
+        photos,
+        debug: await getDebugPayload(token, messages, photos)
+      });
+    }
+
     return res.status(200).json({ photos });
   } catch (error) {
-    return res.status(500).json({ error: "Unable to load Discord gallery" });
+    return res.status(error.status || 500).json({
+      error: "Unable to load Discord gallery",
+      details: error.details || error.message
+    });
   }
 };
