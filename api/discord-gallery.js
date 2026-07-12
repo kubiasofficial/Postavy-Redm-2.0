@@ -12,6 +12,10 @@ const isPhotoAttachment = (attachment) => {
   return /\.(jpe?g|png|webp)$/.test(filename);
 };
 
+const isLikelyImageUrl = (url = "") => (
+  /\.(jpe?g|png|webp)(?:\?.*)?$/i.test(String(url))
+);
+
 const cleanCaption = (content = "") => (
   String(content)
     .replace(/<a?:[^:>]+:\d+>/g, "")
@@ -34,6 +38,57 @@ const getAuthorName = (message) => (
   message.author?.username ||
   "Neznámý autor"
 );
+
+const getMessagePhotos = (message) => {
+  const caption = cleanCaption(message.content);
+  const base = {
+    caption,
+    authorId: message.author?.id || null,
+    authorName: getAuthorName(message),
+    messageId: message.id || null,
+    uploadedAt: message.timestamp || null,
+    createdAt: message.timestamp || null
+  };
+
+  const attachments = Array.isArray(message.attachments)
+    ? message.attachments
+        .filter(isPhotoAttachment)
+        .map((attachment) => ({
+          ...base,
+          id: attachment.id,
+          url: normalizeUrl(attachment.url),
+          proxyUrl: normalizeUrl(attachment.proxy_url || attachment.url),
+          filename: attachment.filename || "photo",
+          width: attachment.width || null,
+          height: attachment.height || null,
+          source: "attachment"
+        }))
+    : [];
+
+  const embeds = Array.isArray(message.embeds)
+    ? message.embeds.flatMap((embed, index) => {
+        const candidates = [
+          { kind: "image", item: embed.image },
+          { kind: "thumbnail", item: embed.thumbnail }
+        ];
+
+        return candidates
+          .filter(({ item }) => item?.url && (item.width || item.height || isLikelyImageUrl(item.url)))
+          .map(({ kind, item }) => ({
+            ...base,
+            id: `${message.id}-${kind}-${index}`,
+            url: normalizeUrl(item.url),
+            proxyUrl: normalizeUrl(item.proxy_url || item.url),
+            filename: embed.title || embed.provider?.name || `${kind}-${index + 1}`,
+            width: item.width || null,
+            height: item.height || null,
+            source: "embed"
+          }));
+      })
+    : [];
+
+  return [...attachments, ...embeds];
+};
 
 module.exports = async (req, res) => {
   if (req.method !== "GET") {
@@ -74,36 +129,13 @@ module.exports = async (req, res) => {
       messages.push(...page);
       before = page[page.length - 1].id;
 
-      const loadedPhotoCount = messages.reduce((count, message) => (
-        count + (Array.isArray(message.attachments)
-          ? message.attachments.filter(isPhotoAttachment).length
-          : 0)
-      ), 0);
+      const loadedPhotoCount = messages.reduce((count, message) => count + getMessagePhotos(message).length, 0);
 
       if (loadedPhotoCount >= photoLimit || page.length < 100) break;
     }
 
     const photos = messages
-      .flatMap((message) => (
-        Array.isArray(message.attachments)
-          ? message.attachments
-              .filter(isPhotoAttachment)
-              .map((attachment) => ({
-                id: attachment.id,
-                url: normalizeUrl(attachment.url),
-                proxyUrl: normalizeUrl(attachment.proxy_url || attachment.url),
-                filename: attachment.filename || "photo",
-                caption: cleanCaption(message.content),
-                authorId: message.author?.id || null,
-                authorName: getAuthorName(message),
-                messageId: message.id || null,
-                width: attachment.width || null,
-                height: attachment.height || null,
-                uploadedAt: message.timestamp || null,
-                createdAt: message.timestamp || null
-              }))
-          : []
-      ))
+      .flatMap(getMessagePhotos)
       .slice(0, photoLimit);
 
     res.setHeader("Cache-Control", "s-maxage=120, stale-while-revalidate=600");
