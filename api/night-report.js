@@ -23,6 +23,11 @@ const characters = {
     name: 'Silas "Sil" Crowe',
     portrait: "images/Silas.png",
     color: 0x6d6fa5
+  },
+  "tom-halbrook": {
+    name: 'Thomas "Tom" Halbrook',
+    portrait: "images/tom.png",
+    color: 0xb48a54
   }
 };
 

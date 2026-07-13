@@ -168,6 +168,33 @@ Roku 1899 přichází do nového kraje. Klidný, upravený, téměř nenápadný
     appearance: "Klidný, upravený a téměř nenápadný muž, který nepůsobí hrozivě na první pohled. Jeho síla není v divokosti, ale v kontrole.",
     personality: "Pozorný, přizpůsobivý a nebezpečně přesvědčivý. Umí mluvit tak, aby lidé slyšeli přesně to, co slyšet chtějí. Ví víc, než říká, a málokdy ukáže, co si skutečně myslí.",
     quote: "„Svět nepatří těm, kdo utíkají. Patří těm, kdo se naučí hrát jeho hru.“"
+  },
+  {
+    id: "tom-halbrook",
+    discordId: "1506652869770612797",
+    listName: "Thomas",
+    name: "Thomas \"Tom\" Halbrook",
+    role: "Farmar / ochrance / novy zacatek",
+    age: "27 let",
+    origin: "Kansas",
+    year: "1899",
+    statusText: "Ve West Havenu",
+    portrait: "images/tom.png",
+    overview: "Thomas Halbrook je pracovity a tvrdohlavy muz z farmarske rodiny. Do West Havenu neprijel hledat slavu ani moc, ale misto, kde by mohl znovu postavit zivot na vlastnich rukou.",
+    overviewBlocks: [
+      { title: "Zakladni informace", text: "Vyrostl mezi polem, dobytkem a praci, ktera se nepta, jestli ma clovek silu. Naucil se drzet slovo, chranit blizke a nevzdavat se ani ve chvili, kdy den vypada ztracene." },
+      { title: "Motivace", text: "Najit klidnejsi budoucnost, zustat uzitecny a dokazat, ze obycejny clovek muze ve West Havenu obstojne stat rovne." }
+    ],
+    lore: `Thomas "Tom" Halbrook vyrostl v obycejne farmarske rodine v Kansasu. Detstvi bylo tvorene hlavne praci. Pomahal na poli, staral se o dobytek, ucil se lovit, opravovat, prezit spatne zimy a rano vstat i tehdy, kdyz telo chtelo zustat lezet.
+
+Nikdy nebyl muz velkych slov. Vyrustal mezi lidmi, kteri verili, ze hodnota cloveka se pozna podle toho, jestli se dokaze postarat o druhy a jestli dokaze dokoncit praci, kterou zacal. Thomas si tuhle tvrdohlavou poctivost odnesl s sebou.
+
+Do West Havenu neprijel jako hrdina ani jako psanec. Prijel jako clovek, ktery hleda novy zacatek. Vi, ze mesto umi byt nebezpecnejsi nez pole za boure, ale take vi, ze utikat pred zivotem se neda donekonecna.
+
+Roku 1899 se snazi najit misto, kde bude jeho sila k necemu dobra. Nepotrebuje byt nejslavnejsi muz v saloonu. Staci mu vedet, ze vecer muze rict, ze ten den nezahodil.`,
+    appearance: "Pevny muz s pracovitima rukama, klidnym pohledem a oblecenim, ktere pusobi vic prakticky nez okrasne. Casto vypada, jako by uz premyslel, co je potreba opravit.",
+    personality: "Poctivy, tvrdohlavy, ochranarsky a trochu opatrny vuci mestskym hram. Thomas neumi dobre predstirat, ale umi vydrzet, kdyz ostatni ztraci nervy.",
+    quote: "\"Nekdy neni potreba velky plan. Staci rano vstat a neuhnout.\""
   }
 ];
 

@@ -91,6 +91,25 @@ const characters = {
       "Silas spí. Nikdo neví, jestli je to odpočinek, nebo další tah.",
       "Silas zavřel oči a West Haven si dovolil zapomenout jen na pár minut."
     ]
+  },
+  "tom-halbrook": {
+    name: 'Thomas "Tom" Halbrook',
+    portrait: "images/tom.png",
+    wakeTitle: "Tom Halbrook je vzhuru",
+    sleepTitle: "Tom Halbrook usnul",
+    footer: "Farmarsky zapis - West Haven",
+    wakeMessages: [
+      "Tom Halbrook se probudil a den hned vypada, ze bude mit kdo vzit praci do rukou.",
+      "U West Havenu pribyl dalsi par pracovitych rukou. Tom je vzhuru.",
+      "Tom otevrel oci a ticho dostalo obycejnou, tvrdohlavou silu.",
+      "Tom je na nohou. Jestli je neco potreba opravit, dlouho to neutaji."
+    ],
+    sleepMessages: [
+      "Tom Halbrook usnul a prace si konecne musela pockat do rana.",
+      "Den z nej stahl unavu az pozde vecer. Tom spi.",
+      "Tom odpociva. I ticho kolem nej pusobi poctive odpracovane.",
+      "Tom zavrel oci a West Haven ma na chvili o jedny pracovite ruce mene."
+    ]
   }
 };
 

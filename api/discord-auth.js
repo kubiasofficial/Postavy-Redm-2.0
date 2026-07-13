@@ -4,7 +4,8 @@ const allowedCharacters = {
   "795365012494483486": "violet",
   "550294660090691594": "william",
   "1454130138240520407": "eleanor",
-  "702917011235143800": "silas"
+  "702917011235143800": "silas",
+  "1506652869770612797": "tom-halbrook"
 };
 
 const getBaseUrl = (req) => {
