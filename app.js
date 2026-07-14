@@ -1,26 +1,3 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-import {
-  collection,
-  doc,
-  getFirestore,
-  onSnapshot,
-  serverTimestamp,
-  setDoc
-} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBW8UgrlPfScBljKTEU2nxvZcQk4soGCyA",
-  authDomain: "postavy-redm-2-0.firebaseapp.com",
-  projectId: "postavy-redm-2-0",
-  storageBucket: "postavy-redm-2-0.firebasestorage.app",
-  messagingSenderId: "471320391062",
-  appId: "1:471320391062:web:497240a0d1ccc4b769c1b7"
-};
-
-const firebaseApp = initializeApp(firebaseConfig);
-const db = getFirestore(firebaseApp);
-const statesRef = collection(db, "characterStates");
-const eventsRef = collection(db, "characterEvents");
 const localStatesKey = "croweFamily2CharacterStates";
 const localEventsKey = "croweFamily2CharacterEvents";
 const adminDiscordId = "417061947759001600";
@@ -288,6 +265,25 @@ const saveManagedCharacters = () => {
   localStorage.setItem(managedCharactersKey, JSON.stringify(characters.map(cloneCharacter)));
 };
 
+const persistManagedCharactersToFirestore = async () => {
+  if (session?.discordId !== adminDiscordId) return;
+  try {
+    const response = await fetch("/api/firestore-characters", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ characters: characters.map(cloneCharacter) })
+    });
+    if (!response.ok) throw new Error(await response.text());
+    usingLocalFallback = false;
+    refs.firebaseStatus.textContent = "Firestore";
+  } catch (error) {
+    usingLocalFallback = true;
+    refs.firebaseStatus.textContent = "Lokalni rezim";
+    console.warn("Firestore API characters write failed, using local fallback.", error);
+  }
+};
+
 const refs = {
   loginShell: document.getElementById("loginShell"),
   appShell: document.getElementById("appShell"),
@@ -394,6 +390,7 @@ let states = new Map();
 let events = [];
 let usingLocalFallback = false;
 let toastTimer = null;
+let firestoreSyncTimer = null;
 
 const actionSounds = {
   wake: new Audio("sound/Probudit.MP3"),
@@ -735,6 +732,7 @@ const refreshAfterCharacterAdminChange = (selectedId) => {
     activeCharacter = characters[0];
   }
   saveManagedCharacters();
+  persistManagedCharactersToFirestore();
   setupAdmin();
   refs.adminCharacterSelect.value = getCharacter(selectedId)?.id || activeCharacter.id;
   fillAdminCharacterForm(getAdminSelection());
@@ -972,18 +970,20 @@ const persistState = async (characterId, nextState) => {
   saveLocalStates();
   renderSummary();
 
-  if (usingLocalFallback) return;
-
   try {
-    await setDoc(doc(statesRef, characterId), {
-      ...payload,
-      characterId,
-      updatedAt: serverTimestamp()
-    }, { merge: true });
+    const response = await fetch("/api/firestore-state", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ characterId, state: payload })
+    });
+    if (!response.ok) throw new Error(await response.text());
+    usingLocalFallback = false;
+    refs.firebaseStatus.textContent = "Firestore";
   } catch (error) {
     usingLocalFallback = true;
     refs.firebaseStatus.textContent = "Lokální režim";
-    console.warn("Firestore write failed, using local fallback.", error);
+    console.warn("Firestore API state write failed, using local fallback.", error);
   }
 };
 
@@ -1006,14 +1006,20 @@ const recordEvent = async ({ characterId, action, durationMs = 0, note = "", tit
   renderFamilyStatus();
   if (!refs.characterPage.hidden) renderCharacterPage(getCharacter(refs.characterPage.dataset.characterId) || activeCharacter);
 
-  if (usingLocalFallback) return;
-
   try {
-    await setDoc(doc(eventsRef, event.id), { ...event, createdAt: serverTimestamp() }, { merge: true });
+    const response = await fetch("/api/firestore-event", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ event })
+    });
+    if (!response.ok) throw new Error(await response.text());
+    usingLocalFallback = false;
+    refs.firebaseStatus.textContent = "Firestore";
   } catch (error) {
     usingLocalFallback = true;
     refs.firebaseStatus.textContent = "Lokální režim";
-    console.warn("Firestore event write failed, using local fallback.", error);
+    console.warn("Firestore API event write failed, using local fallback.", error);
   }
 };
 
@@ -1151,54 +1157,65 @@ const sleepCharacter = async (reportText = "") => {
   showActionToast("sleep", activeCharacter.name);
 };
 
+const applyRemoteCharacters = (remoteCharacters) => {
+  if (!Array.isArray(remoteCharacters) || !remoteCharacters.length) return;
+  characters = remoteCharacters.map(normalizeCharacter);
+  saveManagedCharacters();
+  activeCharacter = getCharacter(activeCharacter?.id) || getCharacter(session?.characterId) || characters[0];
+  setupAdmin();
+};
+
+const syncFirestoreData = async () => {
+  try {
+    const response = await fetch("/api/firestore-data", {
+      cache: "no-store",
+      credentials: "include"
+    });
+    if (!response.ok) throw new Error(await response.text());
+    const data = await response.json();
+
+    applyRemoteCharacters(data.characters);
+
+    const remoteStates = new Map();
+    (data.states || []).forEach((state) => {
+      const characterId = state.characterId || state.id;
+      if (characters.some((character) => character.id === characterId)) {
+        remoteStates.set(characterId, normalizeState(characterId, state));
+      }
+    });
+    characters.forEach((character) => {
+      remoteStates.set(character.id, remoteStates.get(character.id) || states.get(character.id) || getDefaultState(character.id));
+    });
+    states = remoteStates;
+    saveLocalStates();
+
+    events = (data.events || [])
+      .filter((event) => characters.some((character) => character.id === event.characterId))
+      .sort((a, b) => Number(b.createdAtMs || 0) - Number(a.createdAtMs || 0))
+      .slice(0, 80);
+    saveLocalEvents();
+
+    usingLocalFallback = false;
+    refs.firebaseStatus.textContent = "Firestore";
+    renderSummary();
+    renderFamilyStatus();
+    if (!refs.characterPage.hidden) renderCharacterPage(getCharacter(refs.characterPage.dataset.characterId) || activeCharacter);
+  } catch (error) {
+    usingLocalFallback = true;
+    refs.firebaseStatus.textContent = "Lokalni rezim";
+    console.warn("Firestore API sync failed, using local fallback.", error);
+    renderSummary();
+    renderFamilyStatus();
+  }
+};
+
 const startFirestore = () => {
   characters.forEach((character) => {
     if (!states.has(character.id)) states.set(character.id, getDefaultState(character.id));
   });
-
-  try {
-    onSnapshot(statesRef, (snapshot) => {
-      usingLocalFallback = false;
-      refs.firebaseStatus.textContent = "Připraveno";
-      snapshot.forEach((stateDoc) => {
-        if (characters.some((character) => character.id === stateDoc.id)) {
-          states.set(stateDoc.id, normalizeState(stateDoc.id, stateDoc.data()));
-        }
-      });
-      characters.forEach((character) => {
-        if (!states.has(character.id)) states.set(character.id, getDefaultState(character.id));
-      });
-      renderSummary();
-    }, (error) => {
-      usingLocalFallback = true;
-      refs.firebaseStatus.textContent = "Lokální režim";
-      console.warn("Firestore blocked, using local fallback.", error);
-      renderSummary();
-    });
-
-    onSnapshot(eventsRef, (snapshot) => {
-      const remoteEvents = [];
-      snapshot.forEach((eventDoc) => {
-        const data = eventDoc.data();
-        if (characters.some((character) => character.id === data.characterId)) {
-          remoteEvents.push({ id: eventDoc.id, ...data });
-        }
-      });
-      events = remoteEvents
-        .sort((a, b) => Number(b.createdAtMs || 0) - Number(a.createdAtMs || 0))
-        .slice(0, 80);
-      saveLocalEvents();
-      renderFamilyStatus();
-      if (!refs.characterPage.hidden) renderCharacterPage(getCharacter(refs.characterPage.dataset.characterId) || activeCharacter);
-    }, (error) => {
-      console.warn("Firestore events blocked, using local event history.", error);
-      renderFamilyStatus();
-    });
-  } catch (error) {
-    usingLocalFallback = true;
-    refs.firebaseStatus.textContent = "Lokální režim";
-    console.warn("Firestore init failed, using local fallback.", error);
-  }
+  syncFirestoreData();
+  window.clearInterval(firestoreSyncTimer);
+  firestoreSyncTimer = window.setInterval(syncFirestoreData, 10000);
 };
 
 const showLoginErrorFromUrl = () => {
