@@ -391,11 +391,20 @@ let events = [];
 let usingLocalFallback = false;
 let toastTimer = null;
 let firestoreSyncTimer = null;
+let actionSoundsUnlocked = false;
+let hasCompletedInitialFirestoreSync = false;
+let latestNotifiedEventMs = 0;
+const notifiedEventIds = new Set();
 
 const actionSounds = {
   wake: new Audio("sound/Probudit.MP3"),
   sleep: new Audio("sound/Uspat.MP3")
 };
+
+Object.values(actionSounds).forEach((sound) => {
+  sound.preload = "auto";
+  sound.load();
+});
 
 const getCharacter = (characterId) => characters.find((character) => character.id === characterId);
 
@@ -811,6 +820,7 @@ const exportAdminCharacters = () => {
 
 const runAdminAction = async (action) => {
   if (session?.discordId !== adminDiscordId) return;
+  unlockActionSounds();
   const character = getAdminSelection();
   const state = normalizeState(character.id, states.get(character.id));
   const note = refs.adminNoteInput.value.trim();
@@ -831,6 +841,10 @@ const runAdminAction = async (action) => {
     await recordEvent({ characterId: character.id, action: "admin", note: note || "Ručně probuzeno", title: `${character.name} ručně probuzen/a` });
   }
 
+  if (action === "wake") {
+    showActionToast("wake", character.name);
+  }
+
   if (action === "sleep") {
     const durationMs = getLiveMs(state);
     const todayMs = state.todayDate === getTodayKey() ? Number(state.todayMs || 0) + durationMs : durationMs;
@@ -846,6 +860,10 @@ const runAdminAction = async (action) => {
       lastActionAtMs: now
     });
     await recordEvent({ characterId: character.id, action: "admin", durationMs, note: note || "Ručně uspáno", title: `${character.name} ručně uspán/a` });
+  }
+
+  if (action === "sleep") {
+    showActionToast("sleep", character.name);
   }
 
   if (action === "reset") {
@@ -1002,6 +1020,8 @@ const recordEvent = async ({ characterId, action, durationMs = 0, note = "", tit
   };
 
   events = [event, ...events.filter((item) => item.id !== event.id)].slice(0, 80);
+  notifiedEventIds.add(getEventKey(event));
+  latestNotifiedEventMs = Math.max(latestNotifiedEventMs, now);
   saveLocalEvents();
   renderFamilyStatus();
   if (!refs.characterPage.hidden) renderCharacterPage(getCharacter(refs.characterPage.dataset.characterId) || activeCharacter);
@@ -1061,8 +1081,43 @@ const playActionSound = (action) => {
 
   sound.pause();
   sound.currentTime = 0;
-  sound.play().catch(() => {
-    // Browser autoplay settings can block sound if the click gesture expired.
+  sound.muted = false;
+  sound.volume = 1;
+  sound.play().catch((error) => {
+    console.warn("Action sound playback failed.", error);
+  });
+};
+
+const unlockActionSounds = () => {
+  if (actionSoundsUnlocked) return;
+  actionSoundsUnlocked = true;
+
+  Object.values(actionSounds).forEach((sound) => {
+    const originalMuted = sound.muted;
+    const originalVolume = sound.volume;
+    sound.muted = true;
+    sound.volume = 0;
+
+    const unlockAttempt = sound.play();
+    if (!unlockAttempt) {
+      sound.muted = originalMuted;
+      sound.volume = originalVolume;
+      return;
+    }
+
+    unlockAttempt
+      .then(() => {
+        sound.pause();
+        sound.currentTime = 0;
+        sound.muted = originalMuted;
+        sound.volume = originalVolume;
+      })
+      .catch((error) => {
+        actionSoundsUnlocked = false;
+        sound.muted = originalMuted;
+        sound.volume = originalVolume;
+        console.warn("Action sound unlock failed.", error);
+      });
   });
 };
 
@@ -1091,6 +1146,41 @@ const showActionToast = (action, characterName) => {
       refs.actionToast.hidden = true;
     }, 260);
   }, 3600);
+};
+
+const getEventKey = (event) => event.id || `${event.createdAtMs || 0}-${event.characterId || ""}-${event.action || ""}`;
+
+const notifyRemoteActionEvents = (remoteEvents) => {
+  const actionEvents = (remoteEvents || [])
+    .filter((event) => event && (event.action === "wake" || event.action === "sleep"))
+    .sort((a, b) => Number(b.createdAtMs || 0) - Number(a.createdAtMs || 0));
+
+  if (!actionEvents.length) {
+    hasCompletedInitialFirestoreSync = true;
+    return;
+  }
+
+  if (!hasCompletedInitialFirestoreSync) {
+    latestNotifiedEventMs = Math.max(...actionEvents.map((event) => Number(event.createdAtMs || 0)));
+    actionEvents.forEach((event) => notifiedEventIds.add(getEventKey(event)));
+    hasCompletedInitialFirestoreSync = true;
+    return;
+  }
+
+  const freshEvents = actionEvents
+    .filter((event) => {
+      const key = getEventKey(event);
+      const createdAtMs = Number(event.createdAtMs || 0);
+      return createdAtMs >= latestNotifiedEventMs && !notifiedEventIds.has(key);
+    })
+    .sort((a, b) => Number(a.createdAtMs || 0) - Number(b.createdAtMs || 0));
+
+  freshEvents.forEach((event) => {
+    const character = getCharacter(event.characterId);
+    if (character) showActionToast(event.action, character.name);
+    notifiedEventIds.add(getEventKey(event));
+    latestNotifiedEventMs = Math.max(latestNotifiedEventMs, Number(event.createdAtMs || 0));
+  });
 };
 
 const setReportModal = (open) => {
@@ -1189,10 +1279,12 @@ const syncFirestoreData = async () => {
     states = remoteStates;
     saveLocalStates();
 
-    events = (data.events || [])
+    const remoteEvents = (data.events || [])
       .filter((event) => characters.some((character) => character.id === event.characterId))
       .sort((a, b) => Number(b.createdAtMs || 0) - Number(a.createdAtMs || 0))
       .slice(0, 80);
+    notifyRemoteActionEvents(remoteEvents);
+    events = remoteEvents;
     saveLocalEvents();
 
     usingLocalFallback = false;
@@ -1240,6 +1332,8 @@ const loadSession = async () => {
 };
 
 const runCharacterAction = (action) => {
+  unlockActionSounds();
+
   if (action === "sleep") {
     openSleepReport();
     return;
@@ -1306,6 +1400,7 @@ refs.quickSleepButton.addEventListener("click", () => runCharacterAction("sleep"
 refs.menuSleepButton.addEventListener("click", () => runCharacterAction("sleep"));
 refs.cancelSleepButton.addEventListener("click", () => setReportModal(false));
 refs.skipReportSleepButton.addEventListener("click", () => {
+  unlockActionSounds();
   refs.nightReportStatus.textContent = "Uspavam bez reportu...";
   sleepCharacter("").then(() => {
     setReportModal(false);
@@ -1314,6 +1409,7 @@ refs.skipReportSleepButton.addEventListener("click", () => {
   });
 });
 refs.submitReportSleepButton.addEventListener("click", () => {
+  unlockActionSounds();
   const reportText = refs.nightReportInput.value.trim();
   refs.nightReportStatus.textContent = reportText ? "Odesilam report a uspavam..." : "Uspavam bez reportu...";
   sleepCharacter(reportText).then(() => {
