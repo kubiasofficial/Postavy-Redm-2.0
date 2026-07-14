@@ -25,7 +25,7 @@ const localStatesKey = "croweFamily2CharacterStates";
 const localEventsKey = "croweFamily2CharacterEvents";
 const adminDiscordId = "417061947759001600";
 
-const characters = [
+const defaultCharacters = [
   {
     id: "zeke",
     discordId: "417061947759001600",
@@ -198,6 +198,96 @@ Roku 1899 se snazi najit misto, kde bude jeho sila k necemu dobra. Nepotrebuje b
   }
 ];
 
+const managedCharactersKey = "croweFamily2ManagedCharacters";
+
+const cloneCharacter = (character) => ({
+  ...character,
+  overviewBlocks: Array.isArray(character.overviewBlocks)
+    ? character.overviewBlocks.map((block) => ({ ...block }))
+    : []
+});
+
+const createEmptyCharacter = () => ({
+  id: "",
+  discordId: "",
+  listName: "",
+  name: "",
+  role: "",
+  age: "",
+  origin: "",
+  year: "1899",
+  statusText: "",
+  portrait: "images/zeke.png",
+  overview: "",
+  overviewBlocks: [
+    { title: "Zakladni informace", text: "" },
+    { title: "Motivace", text: "" }
+  ],
+  lore: "",
+  appearance: "",
+  personality: "",
+  quote: ""
+});
+
+const slugifyCharacterId = (value) => String(value || "")
+  .trim()
+  .toLowerCase()
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .replace(/[^a-z0-9]+/g, "-")
+  .replace(/^-+|-+$/g, "")
+  .slice(0, 40);
+
+const normalizeCharacter = (draft) => {
+  const base = createEmptyCharacter();
+  const merged = { ...base, ...draft };
+  const fallbackId = slugifyCharacterId(merged.name || merged.listName || "postava");
+  const overviewBlocks = Array.isArray(merged.overviewBlocks)
+    ? merged.overviewBlocks.slice(0, 2).map((block) => ({
+      title: String(block?.title || "").trim(),
+      text: String(block?.text || "").trim()
+    })).filter((block) => block.title || block.text)
+    : [];
+
+  return {
+    ...merged,
+    id: slugifyCharacterId(merged.id) || fallbackId || `postava-${Date.now()}`,
+    discordId: String(merged.discordId || "").trim(),
+    listName: String(merged.listName || merged.name || "Postava").trim(),
+    name: String(merged.name || merged.listName || "Nova postava").trim(),
+    role: String(merged.role || "").trim(),
+    age: String(merged.age || "").trim(),
+    origin: String(merged.origin || "").trim(),
+    year: String(merged.year || "1899").trim(),
+    statusText: String(merged.statusText || "").trim(),
+    portrait: String(merged.portrait || base.portrait).trim(),
+    overview: String(merged.overview || "").trim(),
+    overviewBlocks: overviewBlocks.length ? overviewBlocks : cloneCharacter(base).overviewBlocks,
+    lore: String(merged.lore || "").trim(),
+    appearance: String(merged.appearance || "").trim(),
+    personality: String(merged.personality || "").trim(),
+    quote: String(merged.quote || "").trim()
+  };
+};
+
+const loadManagedCharacters = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem(managedCharactersKey) || "null");
+    if (Array.isArray(saved) && saved.length) {
+      return saved.map(normalizeCharacter);
+    }
+  } catch (error) {
+    console.warn("Managed characters could not be loaded.", error);
+  }
+  return defaultCharacters.map(cloneCharacter);
+};
+
+let characters = loadManagedCharacters();
+
+const saveManagedCharacters = () => {
+  localStorage.setItem(managedCharactersKey, JSON.stringify(characters.map(cloneCharacter)));
+};
+
 const refs = {
   loginShell: document.getElementById("loginShell"),
   appShell: document.getElementById("appShell"),
@@ -247,6 +337,32 @@ const refs = {
   adminForceSleepButton: document.getElementById("adminForceSleepButton"),
   adminResetButton: document.getElementById("adminResetButton"),
   adminStatus: document.getElementById("adminStatus"),
+  adminCharacterForm: document.getElementById("adminCharacterForm"),
+  adminEditId: document.getElementById("adminEditId"),
+  adminEditDiscordId: document.getElementById("adminEditDiscordId"),
+  adminEditListName: document.getElementById("adminEditListName"),
+  adminEditName: document.getElementById("adminEditName"),
+  adminEditRole: document.getElementById("adminEditRole"),
+  adminEditAge: document.getElementById("adminEditAge"),
+  adminEditOrigin: document.getElementById("adminEditOrigin"),
+  adminEditYear: document.getElementById("adminEditYear"),
+  adminEditStatusText: document.getElementById("adminEditStatusText"),
+  adminEditPortrait: document.getElementById("adminEditPortrait"),
+  adminEditOverview: document.getElementById("adminEditOverview"),
+  adminEditBlockOneTitle: document.getElementById("adminEditBlockOneTitle"),
+  adminEditBlockOneText: document.getElementById("adminEditBlockOneText"),
+  adminEditBlockTwoTitle: document.getElementById("adminEditBlockTwoTitle"),
+  adminEditBlockTwoText: document.getElementById("adminEditBlockTwoText"),
+  adminEditLore: document.getElementById("adminEditLore"),
+  adminEditAppearance: document.getElementById("adminEditAppearance"),
+  adminEditPersonality: document.getElementById("adminEditPersonality"),
+  adminEditQuote: document.getElementById("adminEditQuote"),
+  adminSaveCharacterButton: document.getElementById("adminSaveCharacterButton"),
+  adminCreateCharacterButton: document.getElementById("adminCreateCharacterButton"),
+  adminDeleteCharacterButton: document.getElementById("adminDeleteCharacterButton"),
+  adminResetCharactersButton: document.getElementById("adminResetCharactersButton"),
+  adminExportOutput: document.getElementById("adminExportOutput"),
+  adminExportCharactersButton: document.getElementById("adminExportCharactersButton"),
   characterPagePortrait: document.getElementById("characterPagePortrait"),
   characterPageRole: document.getElementById("characterPageRole"),
   characterPageName: document.getElementById("characterPageName"),
@@ -547,6 +663,7 @@ const setupAdmin = () => {
   refs.adminPanel.hidden = !isAdmin;
   if (!isAdmin) return;
 
+  const selectedId = refs.adminCharacterSelect.value || activeCharacter?.id;
   refs.adminCharacterSelect.replaceChildren(
     ...characters.map((character) => {
       const option = document.createElement("option");
@@ -555,10 +672,144 @@ const setupAdmin = () => {
       return option;
     })
   );
-  refs.adminCharacterSelect.value = activeCharacter.id;
+  refs.adminCharacterSelect.value = characters.some((character) => character.id === selectedId)
+    ? selectedId
+    : activeCharacter.id;
+  fillAdminCharacterForm(getAdminSelection());
 };
 
 const getAdminSelection = () => getCharacter(refs.adminCharacterSelect.value) || activeCharacter;
+
+const fillAdminCharacterForm = (character) => {
+  const blocks = Array.isArray(character.overviewBlocks) ? character.overviewBlocks : [];
+  refs.adminEditId.value = character.id || "";
+  refs.adminEditDiscordId.value = character.discordId || "";
+  refs.adminEditListName.value = character.listName || "";
+  refs.adminEditName.value = character.name || "";
+  refs.adminEditRole.value = character.role || "";
+  refs.adminEditAge.value = character.age || "";
+  refs.adminEditOrigin.value = character.origin || "";
+  refs.adminEditYear.value = character.year || "1899";
+  refs.adminEditStatusText.value = character.statusText || "";
+  refs.adminEditPortrait.value = character.portrait || "";
+  refs.adminEditOverview.value = character.overview || "";
+  refs.adminEditBlockOneTitle.value = blocks[0]?.title || "";
+  refs.adminEditBlockOneText.value = blocks[0]?.text || "";
+  refs.adminEditBlockTwoTitle.value = blocks[1]?.title || "";
+  refs.adminEditBlockTwoText.value = blocks[1]?.text || "";
+  refs.adminEditLore.value = character.lore || "";
+  refs.adminEditAppearance.value = character.appearance || "";
+  refs.adminEditPersonality.value = character.personality || "";
+  refs.adminEditQuote.value = character.quote || "";
+  refs.adminDeleteCharacterButton.disabled = characters.length <= 1;
+  refs.adminExportOutput.value = JSON.stringify(characters.map(cloneCharacter), null, 2);
+};
+
+const readAdminCharacterForm = () => normalizeCharacter({
+  id: refs.adminEditId.value,
+  discordId: refs.adminEditDiscordId.value,
+  listName: refs.adminEditListName.value,
+  name: refs.adminEditName.value,
+  role: refs.adminEditRole.value,
+  age: refs.adminEditAge.value,
+  origin: refs.adminEditOrigin.value,
+  year: refs.adminEditYear.value,
+  statusText: refs.adminEditStatusText.value,
+  portrait: refs.adminEditPortrait.value,
+  overview: refs.adminEditOverview.value,
+  overviewBlocks: [
+    { title: refs.adminEditBlockOneTitle.value, text: refs.adminEditBlockOneText.value },
+    { title: refs.adminEditBlockTwoTitle.value, text: refs.adminEditBlockTwoText.value }
+  ],
+  lore: refs.adminEditLore.value,
+  appearance: refs.adminEditAppearance.value,
+  personality: refs.adminEditPersonality.value,
+  quote: refs.adminEditQuote.value
+});
+
+const refreshAfterCharacterAdminChange = (selectedId) => {
+  if (!characters.length) {
+    characters = defaultCharacters.map(cloneCharacter);
+  }
+  if (!getCharacter(activeCharacter?.id)) {
+    activeCharacter = characters[0];
+  }
+  saveManagedCharacters();
+  setupAdmin();
+  refs.adminCharacterSelect.value = getCharacter(selectedId)?.id || activeCharacter.id;
+  fillAdminCharacterForm(getAdminSelection());
+  renderProfile();
+  renderSummary();
+  renderMemberTable();
+  renderFamilyStatus();
+  if (!refs.characterPage.hidden) {
+    renderCharacterPage(getCharacter(refs.characterPage.dataset.characterId) || activeCharacter);
+  }
+};
+
+const saveAdminCharacter = () => {
+  if (session?.discordId !== adminDiscordId) return;
+  const draft = readAdminCharacterForm();
+  const current = getAdminSelection();
+  const existingIndex = characters.findIndex((character) => character.id === current.id);
+  const duplicate = characters.some((character, index) => character.id === draft.id && index !== existingIndex);
+  if (duplicate) {
+    refs.adminStatus.textContent = "Toto ID postavy uz existuje.";
+    return;
+  }
+  if (existingIndex >= 0) {
+    const previousId = characters[existingIndex].id;
+    characters[existingIndex] = draft;
+    if (activeCharacter?.id === previousId) activeCharacter = draft;
+  } else {
+    characters.push(draft);
+  }
+  refreshAfterCharacterAdminChange(draft.id);
+  refs.adminStatus.textContent = "Postava byla ulozena.";
+};
+
+const createAdminCharacter = () => {
+  if (session?.discordId !== adminDiscordId) return;
+  const draft = readAdminCharacterForm();
+  const baseId = draft.id || slugifyCharacterId(draft.name || "nova-postava");
+  let candidateId = baseId;
+  let counter = 2;
+  while (characters.some((character) => character.id === candidateId)) {
+    candidateId = `${baseId}-${counter}`;
+    counter += 1;
+  }
+  characters.push({ ...draft, id: candidateId });
+  refreshAfterCharacterAdminChange(candidateId);
+  refs.adminStatus.textContent = "Nova postava byla pridana.";
+};
+
+const deleteAdminCharacter = () => {
+  if (session?.discordId !== adminDiscordId) return;
+  if (characters.length <= 1) {
+    refs.adminStatus.textContent = "Musi zustat alespon jedna postava.";
+    return;
+  }
+  const removed = getAdminSelection();
+  characters = characters.filter((character) => character.id !== removed.id);
+  if (activeCharacter?.id === removed.id) activeCharacter = characters[0];
+  refreshAfterCharacterAdminChange(activeCharacter.id);
+  refs.adminStatus.textContent = `${removed.name} byla odebrana z weboveho seznamu.`;
+};
+
+const resetAdminCharacters = () => {
+  if (session?.discordId !== adminDiscordId) return;
+  localStorage.removeItem(managedCharactersKey);
+  characters = defaultCharacters.map(cloneCharacter);
+  activeCharacter = getCharacter(activeCharacter?.id) || characters[0];
+  refreshAfterCharacterAdminChange(activeCharacter.id);
+  refs.adminStatus.textContent = "Seznam postav byl vracen na vychozi stav.";
+};
+
+const exportAdminCharacters = () => {
+  refs.adminExportOutput.value = JSON.stringify(characters.map(cloneCharacter), null, 2);
+  refs.adminExportOutput.select();
+  refs.adminStatus.textContent = "JSON export je pripraveny.";
+};
 
 const runAdminAction = async (action) => {
   if (session?.discordId !== adminDiscordId) return;
@@ -996,7 +1247,7 @@ const boot = async () => {
     return;
   }
 
-  activeCharacter = getCharacter(session.characterId);
+  activeCharacter = getCharacter(session.characterId) || characters[0];
   if (!activeCharacter) {
     refs.authError.textContent = "Discord účet není napojený na povolenou postavu.";
     return;
@@ -1057,6 +1308,15 @@ refs.submitReportSleepButton.addEventListener("click", () => {
 refs.adminForceWakeButton.addEventListener("click", () => runAdminAction("wake"));
 refs.adminForceSleepButton.addEventListener("click", () => runAdminAction("sleep"));
 refs.adminResetButton.addEventListener("click", () => runAdminAction("reset"));
+refs.adminCharacterSelect.addEventListener("change", () => fillAdminCharacterForm(getAdminSelection()));
+refs.adminCharacterForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  saveAdminCharacter();
+});
+refs.adminCreateCharacterButton.addEventListener("click", createAdminCharacter);
+refs.adminDeleteCharacterButton.addEventListener("click", deleteAdminCharacter);
+refs.adminResetCharactersButton.addEventListener("click", resetAdminCharacters);
+refs.adminExportCharactersButton.addEventListener("click", exportAdminCharacters);
 refs.logoutButton.addEventListener("click", () => {
   window.location.href = "/api/discord-logout";
 });

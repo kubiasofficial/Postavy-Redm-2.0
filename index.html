@@ -121,7 +121,13 @@
           </div>
           <span>Pouze Ezekiel</span>
         </div>
-        <div class="admin-grid">
+        <div class="admin-layout">
+          <section class="admin-section">
+            <div class="admin-section-heading">
+              <p class="eyebrow">Rychle akce</p>
+              <span>Cas a stav vybrane postavy</span>
+            </div>
+            <div class="admin-grid">
           <label>
             Postava
             <select id="adminCharacterSelect"></select>
@@ -133,6 +139,60 @@
           <button class="ghost-action" type="button" id="adminForceWakeButton">Probudit ručně</button>
           <button class="ghost-action" type="button" id="adminForceSleepButton">Uspat ručně</button>
           <button class="ghost-action danger-action" type="button" id="adminResetButton">Reset času</button>
+        </div>
+          </section>
+
+          <section class="admin-section">
+            <div class="admin-section-heading">
+              <p class="eyebrow">Sprava postavy</p>
+              <span>Uprava weboveho seznamu</span>
+            </div>
+            <form class="admin-character-form" id="adminCharacterForm">
+              <div class="admin-form-grid">
+                <label>ID postavy<input id="adminEditId" type="text" maxlength="40" placeholder="napr. thomas"></label>
+                <label>Discord ID<input id="adminEditDiscordId" type="text" maxlength="32" inputmode="numeric" placeholder="123456789"></label>
+                <label>Kratke jmeno<input id="adminEditListName" type="text" maxlength="40" placeholder="Tom"></label>
+                <label>Cele jmeno<input id="adminEditName" type="text" maxlength="90" placeholder="Thomas Halbrook"></label>
+                <label>Role<input id="adminEditRole" type="text" maxlength="120" placeholder="Farmar / ochrance"></label>
+                <label>Vek<input id="adminEditAge" type="text" maxlength="40" placeholder="27 let"></label>
+                <label>Puvod<input id="adminEditOrigin" type="text" maxlength="70" placeholder="Kansas"></label>
+                <label>Rok<input id="adminEditYear" type="text" maxlength="12" placeholder="1899"></label>
+                <label>Stav v lore<input id="adminEditStatusText" type="text" maxlength="80" placeholder="Ve West Havenu"></label>
+                <label>Fotka<input id="adminEditPortrait" type="text" maxlength="160" placeholder="images/tom.png"></label>
+              </div>
+              <label>Kratky souhrn<textarea id="adminEditOverview" rows="3" maxlength="700"></textarea></label>
+              <div class="admin-form-grid">
+                <label>Blok 1 nadpis<input id="adminEditBlockOneTitle" type="text" maxlength="60"></label>
+                <label>Blok 2 nadpis<input id="adminEditBlockTwoTitle" type="text" maxlength="60"></label>
+              </div>
+              <div class="admin-form-grid">
+                <label>Blok 1 text<textarea id="adminEditBlockOneText" rows="3" maxlength="500"></textarea></label>
+                <label>Blok 2 text<textarea id="adminEditBlockTwoText" rows="3" maxlength="500"></textarea></label>
+              </div>
+              <label>Lore<textarea id="adminEditLore" rows="7" maxlength="5000"></textarea></label>
+              <div class="admin-form-grid">
+                <label>Vzhled<textarea id="adminEditAppearance" rows="4" maxlength="1200"></textarea></label>
+                <label>Povaha<textarea id="adminEditPersonality" rows="4" maxlength="1200"></textarea></label>
+              </div>
+              <label>Citace<input id="adminEditQuote" type="text" maxlength="240"></label>
+              <div class="admin-actions">
+                <button class="ghost-action" type="submit" id="adminSaveCharacterButton">Ulozit postavu</button>
+                <button class="ghost-action" type="button" id="adminCreateCharacterButton">Pridat jako novou</button>
+                <button class="ghost-action danger-action" type="button" id="adminDeleteCharacterButton">Odebrat z webu</button>
+                <button class="ghost-action" type="button" id="adminResetCharactersButton">Vratit vychozi seznam</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="admin-section">
+            <div class="admin-section-heading">
+              <p class="eyebrow">Export</p>
+              <span>Pro napojeni serveru a bota</span>
+            </div>
+            <p class="admin-help">Zmeny se projevi hned na webu v tomto prohlizeci. Aby nova postava fungovala i v Discord prihlaseni a API, pouzij tento export pro dalsi upravu serverove casti.</p>
+            <textarea class="admin-export-output" id="adminExportOutput" rows="8" readonly></textarea>
+            <button class="ghost-action" type="button" id="adminExportCharactersButton">Vygenerovat JSON</button>
+          </section>
         </div>
         <p class="admin-status" id="adminStatus"></p>
       </section>
