@@ -1151,6 +1151,15 @@ const showActionToast = (action, characterName) => {
   }, 3600);
 };
 
+const setNightReportStatus = (message = "") => {
+  const statusElement = refs.nightReportStatus || document.getElementById("nightReportStatus");
+  if (!statusElement) {
+    if (message) console.warn("Night report status element is missing.", message);
+    return;
+  }
+  statusElement.textContent = message;
+};
+
 const getEventKey = (event) => event.id || `${event.createdAtMs || 0}-${event.characterId || ""}-${event.action || ""}`;
 
 const notifyRemoteActionEvents = (remoteEvents) => {
@@ -1216,16 +1225,23 @@ const notifyStateTransitions = (nextStates) => {
 };
 
 const setReportModal = (open) => {
+  if (!refs.nightReportModal) return;
   refs.nightReportModal.hidden = !open;
   refs.nightReportModal.setAttribute("aria-hidden", String(!open));
-  if (open) refs.nightReportInput.focus();
+  if (open) refs.nightReportInput?.focus();
 };
 
 const openSleepReport = () => {
   const state = normalizeState(activeCharacter.id, states.get(activeCharacter.id));
   if (state.status !== "awake") return;
+  if (!refs.nightReportModal || !refs.nightReportInput || !refs.nightReportMeta) {
+    sleepCharacter("").catch((error) => {
+      refs.firebaseStatus.textContent = error.message;
+    });
+    return;
+  }
   refs.nightReportInput.value = "";
-  refs.nightReportStatus.textContent = "";
+  setNightReportStatus("");
   refs.nightReportMeta.textContent = `Sezeni: ${formatDuration(getLiveMs(state))}. Report neni povinny.`;
   setReportModal(true);
 };
@@ -1434,21 +1450,21 @@ refs.menuSleepButton.addEventListener("click", () => runCharacterAction("sleep")
 refs.cancelSleepButton.addEventListener("click", () => setReportModal(false));
 refs.skipReportSleepButton.addEventListener("click", () => {
   unlockActionSounds();
-  refs.nightReportStatus.textContent = "Uspavam bez reportu...";
+  setNightReportStatus("Uspavam bez reportu...");
   sleepCharacter("").then(() => {
     setReportModal(false);
   }).catch((error) => {
-    refs.nightReportStatus.textContent = error.message;
+    setNightReportStatus(error.message);
   });
 });
 refs.submitReportSleepButton.addEventListener("click", () => {
   unlockActionSounds();
   const reportText = refs.nightReportInput.value.trim();
-  refs.nightReportStatus.textContent = reportText ? "Odesilam report a uspavam..." : "Uspavam bez reportu...";
+  setNightReportStatus(reportText ? "Odesilam report a uspavam..." : "Uspavam bez reportu...");
   sleepCharacter(reportText).then(() => {
     setReportModal(false);
   }).catch((error) => {
-    refs.nightReportStatus.textContent = error.message;
+    setNightReportStatus(error.message);
   });
 });
 refs.adminForceWakeButton.addEventListener("click", () => runAdminAction("wake"));
