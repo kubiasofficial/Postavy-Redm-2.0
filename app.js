@@ -395,6 +395,8 @@ let actionSoundsUnlocked = false;
 let hasCompletedInitialFirestoreSync = false;
 let latestNotifiedEventMs = 0;
 const notifiedEventIds = new Set();
+let hasCompletedInitialStateSync = false;
+const lastKnownStatuses = new Map();
 
 const actionSounds = {
   wake: new Audio("sound/Probudit.MP3"),
@@ -985,6 +987,7 @@ const persistState = async (characterId, nextState) => {
     updatedAtMs: Date.now()
   };
   states.set(characterId, normalizeState(characterId, payload));
+  lastKnownStatuses.set(characterId, payload.status);
   saveLocalStates();
   renderSummary();
 
@@ -1183,6 +1186,35 @@ const notifyRemoteActionEvents = (remoteEvents) => {
   });
 };
 
+const notifyStateTransitions = (nextStates) => {
+  if (!hasCompletedInitialStateSync) {
+    nextStates.forEach((state, characterId) => {
+      lastKnownStatuses.set(characterId, state.status);
+    });
+    hasCompletedInitialStateSync = true;
+    return;
+  }
+
+  nextStates.forEach((state, characterId) => {
+    const previousStatus = lastKnownStatuses.get(characterId);
+    lastKnownStatuses.set(characterId, state.status);
+
+    if (!previousStatus || previousStatus === state.status) return;
+
+    const character = getCharacter(characterId);
+    if (!character) return;
+
+    if (state.status === "awake") {
+      showActionToast("wake", character.name);
+      return;
+    }
+
+    if (state.status === "asleep") {
+      showActionToast("sleep", character.name);
+    }
+  });
+};
+
 const setReportModal = (open) => {
   refs.nightReportModal.hidden = !open;
   refs.nightReportModal.setAttribute("aria-hidden", String(!open));
@@ -1276,6 +1308,7 @@ const syncFirestoreData = async () => {
     characters.forEach((character) => {
       remoteStates.set(character.id, remoteStates.get(character.id) || states.get(character.id) || getDefaultState(character.id));
     });
+    notifyStateTransitions(remoteStates);
     states = remoteStates;
     saveLocalStates();
 
