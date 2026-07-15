@@ -697,6 +697,8 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
   margin-top: 18px;
 }
 .member-row {
+  position: relative;
+  isolation: isolate;
   display: grid;
   grid-template-columns: 1fr;
   gap: 7px;
@@ -712,7 +714,8 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
   color: inherit;
   cursor: pointer;
   text-align: left;
-  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+  overflow: hidden;
 }
 .member-row:hover {
   transform: translateY(-2px);
@@ -759,6 +762,8 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
   background:
     linear-gradient(145deg, rgba(61, 138, 85, 0.13), transparent 52%),
     rgba(8, 8, 7, 0.6);
+  box-shadow: 0 0 0 1px rgba(61, 138, 85, 0.12), 0 0 26px rgba(61, 138, 85, 0.18);
+  animation: member-awake-pulse 2.8s ease-in-out infinite;
 }
 .member-time {
   align-self: end;
@@ -766,7 +771,24 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
   color: var(--gold-soft);
   font-variant-numeric: tabular-nums;
   font-weight: 800;
-  font-size: 1rem;
+  font-size: 0.98rem;
+  letter-spacing: 0.01em;
+}
+.member-row.is-awake .member-time {
+  color: #cbf2d3;
+  text-shadow: 0 0 14px rgba(61, 138, 85, 0.45);
+}
+.member-row.is-awake::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  bottom: 14px;
+  z-index: -1;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(61, 138, 85, 0.36), transparent 70%);
+  opacity: 0.65;
 }
 
 .event-list {
@@ -1165,6 +1187,14 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
 @keyframes side-character-idle {
   from { transform: translateY(0); }
   to { transform: translateY(-10px); }
+}
+@keyframes member-awake-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 1px rgba(61, 138, 85, 0.12), 0 0 22px rgba(61, 138, 85, 0.14);
+  }
+  50% {
+    box-shadow: 0 0 0 1px rgba(61, 138, 85, 0.35), 0 0 34px rgba(61, 138, 85, 0.32);
+  }
 }
 @keyframes report-rise {
   from { opacity: 0; transform: translateY(16px) scale(0.98); }

@@ -490,6 +490,13 @@ const formatDuration = (ms) => {
   return [hours, minutes, seconds].map((part) => String(part).padStart(2, "0")).join(":");
 };
 
+const formatCompactDuration = (ms) => {
+  const totalMinutes = Math.max(0, Math.floor(ms / 60000));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return `${hours}h ${String(minutes).padStart(2, "0")}min`;
+};
+
 const getTodayKey = () => new Date().toISOString().slice(0, 10);
 
 const getReadableTime = (ms) => (
@@ -597,7 +604,7 @@ const renderFamilyStatus = () => {
 
   const lastEvent = events[0];
   refs.familyAwakeCount.textContent = `${awake} / ${characters.length}`;
-  refs.familyTodayTotal.textContent = formatDuration(todayTotal);
+  refs.familyTodayTotal.textContent = formatCompactDuration(todayTotal);
   refs.lastActivityText.textContent = lastEvent
     ? `${getCharacter(lastEvent.characterId)?.listName || "Postava"} · ${lastEvent.action === "wake" ? "probuzení" : lastEvent.action === "sleep" ? "spánek" : "admin"}`
     : "Zatím žádná";
@@ -638,7 +645,7 @@ const renderMemberTable = () => {
 
     const time = document.createElement("span");
     time.className = "member-time";
-    time.textContent = formatDuration(getTotalMs(state));
+    time.textContent = formatCompactDuration(getTotalMs(state));
 
     button.append(portrait, content, status, time);
     refs.memberTable.appendChild(button);
@@ -663,7 +670,7 @@ const renderSummary = () => {
   refs.summaryTotal.textContent = formatDuration(getTotalMs(state));
   refs.heroStatusText.textContent = isAwake ? "Vzhuru" : "Spi";
   refs.heroSessionText.textContent = formatDuration(getLiveMs(state));
-  refs.heroTodayText.textContent = formatDuration(getTodayMs(state));
+  refs.heroTodayText.textContent = formatCompactDuration(getTodayMs(state));
   refs.zekeSideLeft.hidden = activeCharacter.id !== "zeke";
   refs.zekeSideRight.hidden = activeCharacter.id !== "zeke";
 
