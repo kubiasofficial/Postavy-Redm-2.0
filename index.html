@@ -144,6 +144,65 @@
 
           <section class="admin-section">
             <div class="admin-section-heading">
+              <p class="eyebrow">Uprava casu</p>
+              <span>Pricteni nebo odebrani odehraneho casu</span>
+            </div>
+            <div class="admin-control-grid admin-time-grid">
+              <label>
+                Smer
+                <select id="adminTimeDirection">
+                  <option value="add">Pridat cas</option>
+                  <option value="subtract">Odebrat cas</option>
+                </select>
+              </label>
+              <label>
+                Hodnota
+                <input id="adminTimeAmount" type="number" min="1" max="999" step="1" value="1">
+              </label>
+              <label>
+                Jednotka
+                <select id="adminTimeUnit">
+                  <option value="minutes">Minuty</option>
+                  <option value="hours">Hodiny</option>
+                </select>
+              </label>
+              <label>
+                Duvod
+                <input id="adminTimeReason" type="text" maxlength="120" placeholder="Napr. oprava casu po padu">
+              </label>
+              <button class="ghost-action" type="button" id="adminApplyTimeButton">Ulozit upravu casu</button>
+            </div>
+          </section>
+
+          <section class="admin-section">
+            <div class="admin-section-heading">
+              <p class="eyebrow">Discord embed</p>
+              <span>Rychla zprava do vybraneho kanalu</span>
+            </div>
+            <form class="admin-character-form admin-embed-form" id="adminEmbedForm">
+              <div class="admin-form-grid">
+                <label>Kanal<select id="adminEmbedTarget">
+                  <option value="statusWebhook">Kanal probuzeni / spanku</option>
+                  <option value="nightWebhook">Kanal nocnich reportu</option>
+                  <option value="customChannel">Vlastni channel ID</option>
+                </select></label>
+                <label>Channel ID<input id="adminEmbedChannelId" type="text" maxlength="32" inputmode="numeric" placeholder="Pouze pro vlastni channel ID"></label>
+                <label>Barva<input id="adminEmbedColor" type="text" maxlength="7" value="#9B1F2E" placeholder="#9B1F2E"></label>
+                <label>Titulek<input id="adminEmbedTitle" type="text" maxlength="180" placeholder="Crowe Family notice"></label>
+              </div>
+              <label>Text embedu<textarea id="adminEmbedDescription" rows="5" maxlength="1800" placeholder="Napis text zpravy..."></textarea></label>
+              <label>Odkaz / URL<input id="adminEmbedUrl" type="text" maxlength="300" placeholder="https://postavy-redm-2-0.vercel.app/"></label>
+              <label>Text nad embedem<input id="adminEmbedContent" type="text" maxlength="300" placeholder="Volitelne, napr. @everyone"></label>
+              <div class="admin-actions">
+                <button class="ghost-action" type="button" id="adminPreviewEmbedButton">Nahled JSON</button>
+                <button class="primary-action" type="submit" id="adminSendEmbedButton">Odeslat embed</button>
+              </div>
+              <textarea class="admin-export-output" id="adminEmbedPreview" rows="8" readonly></textarea>
+            </form>
+          </section>
+
+          <section class="admin-section">
+            <div class="admin-section-heading">
               <p class="eyebrow">Sprava postavy</p>
               <span>Uprava weboveho seznamu</span>
             </div>

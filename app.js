@@ -332,6 +332,22 @@ const refs = {
   adminForceWakeButton: document.getElementById("adminForceWakeButton"),
   adminForceSleepButton: document.getElementById("adminForceSleepButton"),
   adminResetButton: document.getElementById("adminResetButton"),
+  adminTimeDirection: document.getElementById("adminTimeDirection"),
+  adminTimeAmount: document.getElementById("adminTimeAmount"),
+  adminTimeUnit: document.getElementById("adminTimeUnit"),
+  adminTimeReason: document.getElementById("adminTimeReason"),
+  adminApplyTimeButton: document.getElementById("adminApplyTimeButton"),
+  adminEmbedForm: document.getElementById("adminEmbedForm"),
+  adminEmbedTarget: document.getElementById("adminEmbedTarget"),
+  adminEmbedChannelId: document.getElementById("adminEmbedChannelId"),
+  adminEmbedColor: document.getElementById("adminEmbedColor"),
+  adminEmbedTitle: document.getElementById("adminEmbedTitle"),
+  adminEmbedDescription: document.getElementById("adminEmbedDescription"),
+  adminEmbedUrl: document.getElementById("adminEmbedUrl"),
+  adminEmbedContent: document.getElementById("adminEmbedContent"),
+  adminPreviewEmbedButton: document.getElementById("adminPreviewEmbedButton"),
+  adminSendEmbedButton: document.getElementById("adminSendEmbedButton"),
+  adminEmbedPreview: document.getElementById("adminEmbedPreview"),
   adminStatus: document.getElementById("adminStatus"),
   adminCharacterForm: document.getElementById("adminCharacterForm"),
   adminEditId: document.getElementById("adminEditId"),
@@ -818,6 +834,91 @@ const exportAdminCharacters = () => {
   refs.adminExportOutput.value = JSON.stringify(characters.map(cloneCharacter), null, 2);
   refs.adminExportOutput.select();
   refs.adminStatus.textContent = "JSON export je pripraveny.";
+};
+
+const getAdminTimeDeltaMs = () => {
+  const amount = Math.max(1, Math.min(999, Number(refs.adminTimeAmount?.value || 0)));
+  const unit = refs.adminTimeUnit?.value || "minutes";
+  const sign = refs.adminTimeDirection?.value === "subtract" ? -1 : 1;
+  const multiplier = unit === "hours" ? 60 * 60 * 1000 : 60 * 1000;
+  return sign * amount * multiplier;
+};
+
+const adjustAdminTime = async () => {
+  if (session?.discordId !== adminDiscordId) return;
+  const character = getAdminSelection();
+  const state = normalizeState(character.id, states.get(character.id));
+  const deltaMs = getAdminTimeDeltaMs();
+  const reason = refs.adminTimeReason?.value.trim() || "Rucni uprava casu";
+  const nextTotalMs = Math.max(0, Number(state.totalMs || 0) + deltaMs);
+  const todayBase = state.todayDate === getTodayKey() ? Number(state.todayMs || 0) : 0;
+  const nextTodayMs = Math.max(0, todayBase + deltaMs);
+  const actionText = deltaMs >= 0 ? "pridano" : "odebrano";
+  const readableDelta = formatDuration(Math.abs(deltaMs));
+
+  await persistState(character.id, {
+    ...state,
+    totalMs: nextTotalMs,
+    todayDate: getTodayKey(),
+    todayMs: nextTodayMs,
+    lastActionAtMs: Date.now()
+  });
+
+  await recordEvent({
+    characterId: character.id,
+    action: "admin",
+    durationMs: deltaMs,
+    note: `${reason} (${actionText} ${readableDelta})`,
+    title: `${character.name}: uprava casu`
+  });
+
+  refs.adminStatus.textContent = `${character.name}: ${actionText} ${readableDelta}.`;
+  if (refs.adminTimeReason) refs.adminTimeReason.value = "";
+};
+
+const normalizeEmbedColor = (value) => {
+  const raw = String(value || "").trim().replace("#", "");
+  return /^[0-9a-fA-F]{6}$/.test(raw) ? Number.parseInt(raw, 16) : 0x9B1F2E;
+};
+
+const buildAdminEmbedPayload = () => ({
+  target: refs.adminEmbedTarget?.value || "statusWebhook",
+  channelId: refs.adminEmbedChannelId?.value.trim() || "",
+  content: refs.adminEmbedContent?.value.trim() || "",
+  embed: {
+    title: refs.adminEmbedTitle?.value.trim() || "Crowe Family notice",
+    description: refs.adminEmbedDescription?.value.trim() || "Zprava z admin panelu.",
+    url: refs.adminEmbedUrl?.value.trim() || "",
+    color: normalizeEmbedColor(refs.adminEmbedColor?.value),
+    timestamp: new Date().toISOString(),
+    footer: {
+      text: "Crowe Family 2.0 | admin zprava"
+    }
+  }
+});
+
+const previewAdminEmbed = () => {
+  if (!refs.adminEmbedPreview) return;
+  refs.adminEmbedPreview.value = JSON.stringify(buildAdminEmbedPayload(), null, 2);
+};
+
+const sendAdminEmbed = async () => {
+  if (session?.discordId !== adminDiscordId) return;
+  const payload = buildAdminEmbedPayload();
+  refs.adminStatus.textContent = "Odesilam Discord embed...";
+
+  const response = await fetch("/api/admin-discord-embed", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(payload)
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || "Discord embed se nepodarilo odeslat.");
+
+  refs.adminStatus.textContent = "Discord embed byl odeslan.";
+  previewAdminEmbed();
 };
 
 const runAdminAction = async (action) => {
@@ -1512,6 +1613,18 @@ refs.submitReportSleepButton.addEventListener("click", () => {
 refs.adminForceWakeButton.addEventListener("click", () => runAdminAction("wake"));
 refs.adminForceSleepButton.addEventListener("click", () => runAdminAction("sleep"));
 refs.adminResetButton.addEventListener("click", () => runAdminAction("reset"));
+refs.adminApplyTimeButton?.addEventListener("click", () => {
+  adjustAdminTime().catch((error) => {
+    refs.adminStatus.textContent = error.message;
+  });
+});
+refs.adminPreviewEmbedButton?.addEventListener("click", previewAdminEmbed);
+refs.adminEmbedForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  sendAdminEmbed().catch((error) => {
+    refs.adminStatus.textContent = error.message;
+  });
+});
 refs.adminCharacterSelect.addEventListener("change", () => fillAdminCharacterForm(getAdminSelection()));
 refs.adminCharacterForm.addEventListener("submit", (event) => {
   event.preventDefault();

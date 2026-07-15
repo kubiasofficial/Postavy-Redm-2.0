@@ -814,6 +814,16 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
   line-height: 1.55;
 }
 
+.admin-control-grid {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(240px, 1.35fr) minmax(300px, 2fr);
+  gap: 12px;
+  align-items: end;
+  margin-top: 16px;
+}
+.admin-time-grid {
+  grid-template-columns: minmax(130px, 0.7fr) minmax(120px, 0.6fr) minmax(130px, 0.7fr) minmax(240px, 1.4fr) auto;
+}
 .admin-grid {
   display: grid;
   grid-template-columns: minmax(180px, 1fr) minmax(240px, 1.3fr) repeat(3, minmax(130px, auto));
@@ -821,6 +831,7 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
   align-items: end;
   margin-top: 16px;
 }
+.admin-control-grid label,
 .admin-grid label {
   display: grid;
   gap: 8px;
@@ -830,6 +841,8 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+.admin-control-grid select,
+.admin-control-grid input,
 .admin-grid select,
 .admin-grid input {
   min-height: 44px;
@@ -883,6 +896,7 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
   text-transform: uppercase;
 }
 .admin-character-form input,
+.admin-character-form select,
 .admin-character-form textarea,
 .admin-export-output {
   width: 100%;
@@ -893,6 +907,12 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
   padding: 10px 12px;
   font: inherit;
   line-height: 1.45;
+}
+.admin-section-featured {
+  border-color: rgba(247, 217, 157, 0.36);
+  background:
+    linear-gradient(145deg, rgba(155, 31, 46, 0.12), transparent 54%),
+    rgba(5, 4, 3, 0.52);
 }
 .admin-character-form textarea,
 .admin-export-output {
@@ -911,8 +931,12 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
   flex-wrap: wrap;
   gap: 10px;
 }
+.admin-actions-inline {
+  align-items: end;
+}
 .admin-actions .ghost-action,
-.admin-section > .ghost-action {
+.admin-section > .ghost-action,
+.admin-control-grid > .ghost-action {
   min-height: 44px;
 }
 .danger-action {
@@ -1165,6 +1189,8 @@ button:disabled { cursor: not-allowed; opacity: 0.48; }
   .dossier-grid,
   .ledger-hero,
   .family-status-grid,
+  .admin-control-grid,
+  .admin-time-grid,
   .admin-grid,
   .admin-form-grid {
     grid-template-columns: 1fr;
