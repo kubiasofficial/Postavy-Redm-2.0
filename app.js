@@ -1091,6 +1091,49 @@ const playActionSound = (action) => {
   });
 };
 
+const ensureActionToastElements = () => {
+  let toast = refs.actionToast || document.getElementById("actionToast");
+  let icon = refs.actionToastIcon || document.getElementById("actionToastIcon");
+  let title = refs.actionToastTitle || document.getElementById("actionToastTitle");
+  let text = refs.actionToastText || document.getElementById("actionToastText");
+
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.className = "action-toast";
+    toast.id = "actionToast";
+    toast.setAttribute("role", "status");
+    toast.setAttribute("aria-live", "polite");
+    toast.setAttribute("aria-atomic", "true");
+    toast.hidden = true;
+    document.body.appendChild(toast);
+  }
+
+  if (!icon) {
+    icon = document.createElement("span");
+    icon.id = "actionToastIcon";
+    toast.appendChild(icon);
+  }
+
+  if (!title) {
+    title = document.createElement("strong");
+    title.id = "actionToastTitle";
+    toast.appendChild(title);
+  }
+
+  if (!text) {
+    text = document.createElement("small");
+    text.id = "actionToastText";
+    toast.appendChild(text);
+  }
+
+  refs.actionToast = toast;
+  refs.actionToastIcon = icon;
+  refs.actionToastTitle = title;
+  refs.actionToastText = text;
+
+  return { toast, icon, title, text };
+};
+
 const unlockActionSounds = () => {
   if (actionSoundsUnlocked) return;
   actionSoundsUnlocked = true;
@@ -1125,28 +1168,27 @@ const unlockActionSounds = () => {
 };
 
 const showActionToast = (action, characterName) => {
-  if (!refs.actionToast || !refs.actionToastIcon || !refs.actionToastTitle || !refs.actionToastText) return;
+  const toastRefs = ensureActionToastElements();
+  if (!toastRefs) return;
+
+  const { toast, icon, title, text } = toastRefs;
 
   const isWake = action === "wake";
   clearTimeout(toastTimer);
-  refs.actionToast.hidden = false;
-  refs.actionToast.classList.remove("is-wake", "is-sleep", "is-visible");
-  refs.actionToastIcon.textContent = isWake ? "◆" : "◇";
-  refs.actionToastTitle.textContent = isWake
-    ? `${characterName} se probudil/a`
-    : `${characterName} usnul/a`;
-  refs.actionToastText.textContent = isWake
-    ? "Postava je oznacena jako vzhuru."
-    : "Postava je ulozena ke spanku.";
-  refs.actionToast.classList.add(isWake ? "is-wake" : "is-sleep");
+  toast.hidden = false;
+  toast.classList.remove("is-wake", "is-sleep", "is-visible");
+  icon.textContent = isWake ? "+" : "-";
+  title.textContent = characterName;
+  text.textContent = isWake ? "se probudil/a" : "šel/šla spát";
+  toast.classList.add(isWake ? "is-wake" : "is-sleep");
 
-  requestAnimationFrame(() => refs.actionToast.classList.add("is-visible"));
+  requestAnimationFrame(() => toast.classList.add("is-visible"));
   playActionSound(action);
 
   toastTimer = setTimeout(() => {
-    refs.actionToast.classList.remove("is-visible");
+    toast.classList.remove("is-visible");
     toastTimer = setTimeout(() => {
-      refs.actionToast.hidden = true;
+      toast.hidden = true;
     }, 260);
   }, 3600);
 };
@@ -1482,6 +1524,9 @@ refs.adminExportCharactersButton.addEventListener("click", exportAdminCharacters
 refs.logoutButton.addEventListener("click", () => {
   window.location.href = "/api/discord-logout";
 });
+
+document.addEventListener("pointerdown", unlockActionSounds, { once: true });
+document.addEventListener("keydown", unlockActionSounds, { once: true });
 
 setInterval(renderSummary, 1000);
 boot();
