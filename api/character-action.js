@@ -118,6 +118,13 @@ const colors = {
   sleep: 0xb93642
 };
 
+const adminDiscordId = "417061947759001600";
+
+const adminEmbedTargets = {
+  statusWebhook: "DISCORD_STATUS_WEBHOOK_URL",
+  nightWebhook: "DISCORD_NIGHT_REPORT_WEBHOOK_URL"
+};
+
 const decodeSession = (value) => {
   try {
     return JSON.parse(Buffer.from(value, "base64url").toString("utf8"));
@@ -150,7 +157,97 @@ const formatDuration = (ms) => {
 
 const pick = (items) => items[Math.floor(Math.random() * items.length)];
 
+const sanitizeAdminEmbed = (embed = {}) => {
+  const title = String(embed.title || "").trim().slice(0, 256);
+  const description = String(embed.description || "").trim().slice(0, 4096);
+  const url = String(embed.url || "").trim();
+  const color = Number.isFinite(Number(embed.color)) ? Number(embed.color) : 0x9B1F2E;
+
+  return {
+    title: title || "Crowe Family notice",
+    description: description || "Zprava z admin panelu.",
+    ...(url ? { url } : {}),
+    color,
+    footer: {
+      text: "Crowe Family 2.0 | admin zprava"
+    },
+    timestamp: new Date().toISOString()
+  };
+};
+
+const sendJson = async (url, payload, headers = {}) => {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...headers
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+};
+
+const sendAdminDiscordEmbed = async (req, res, session, body) => {
+  if (session.discordId !== adminDiscordId) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+
+  const target = String(body.target || "statusWebhook");
+  const channelId = String(body.channelId || "").trim();
+  const content = String(body.content || "").trim().slice(0, 2000);
+  const payload = {
+    ...(content ? { content } : {}),
+    allowed_mentions: {
+      parse: ["everyone", "roles", "users"]
+    },
+    embeds: [sanitizeAdminEmbed(body.embed)]
+  };
+
+  try {
+    if (adminEmbedTargets[target]) {
+      const webhookEnvName = adminEmbedTargets[target];
+      const webhookUrl = process.env[webhookEnvName];
+      if (!webhookUrl) {
+        res.status(500).json({ error: `Missing ${webhookEnvName}` });
+        return;
+      }
+
+      await sendJson(webhookUrl, payload);
+      res.status(200).json({ ok: true, target });
+      return;
+    }
+
+    if (!channelId) {
+      res.status(400).json({ error: "Missing channel ID" });
+      return;
+    }
+
+    const token = process.env.DISCORD_BOT_TOKEN;
+    if (!token) {
+      res.status(500).json({ error: "Missing DISCORD_BOT_TOKEN" });
+      return;
+    }
+
+    await sendJson(
+      `https://discord.com/api/v10/channels/${channelId}/messages`,
+      payload,
+      { Authorization: `Bot ${token}` }
+    );
+
+    res.status(200).json({ ok: true, target: "customChannel", channelId });
+  } catch (error) {
+    console.error("Admin Discord embed failed.", error);
+    res.status(500).json({ error: "Discord embed se nepodarilo odeslat." });
+  }
+};
+
 module.exports = async (req, res) => {
+  res.setHeader("Cache-Control", "no-store");
+
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     res.status(405).json({ error: "Method not allowed" });
@@ -170,6 +267,11 @@ module.exports = async (req, res) => {
   }
 
   const body = await readJson(req);
+  if (body.action === "adminEmbed") {
+    await sendAdminDiscordEmbed(req, res, session, body);
+    return;
+  }
+
   const character = characters[body.characterId];
   if (!character || session.characterId !== body.characterId) {
     res.status(403).json({ error: "Tahle postava nepatří přihlášenému Discord účtu." });

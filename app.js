@@ -882,6 +882,7 @@ const normalizeEmbedColor = (value) => {
 };
 
 const buildAdminEmbedPayload = () => ({
+  action: "adminEmbed",
   target: refs.adminEmbedTarget?.value || "statusWebhook",
   channelId: refs.adminEmbedChannelId?.value.trim() || "",
   content: refs.adminEmbedContent?.value.trim() || "",
@@ -907,7 +908,7 @@ const sendAdminEmbed = async () => {
   const payload = buildAdminEmbedPayload();
   refs.adminStatus.textContent = "Odesilam Discord embed...";
 
-  const response = await fetch("/api/admin-discord-embed", {
+  const response = await fetch("/api/character-action", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
