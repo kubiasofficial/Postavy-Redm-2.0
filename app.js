@@ -406,6 +406,7 @@ let states = new Map();
 let events = [];
 let usingLocalFallback = false;
 let toastTimer = null;
+let toastHideTimer = null;
 let firestoreSyncTimer = null;
 let actionSoundsUnlocked = false;
 let hasCompletedInitialFirestoreSync = false;
@@ -1284,20 +1285,26 @@ const showActionToast = (action, characterName) => {
 
   const isWake = action === "wake";
   clearTimeout(toastTimer);
+  clearTimeout(toastHideTimer);
   toast.hidden = false;
+  toast.removeAttribute("hidden");
   toast.classList.remove("is-wake", "is-sleep", "is-visible");
   icon.textContent = isWake ? "+" : "-";
   title.textContent = characterName;
   text.textContent = isWake ? "se probudil/a" : "šel/šla spát";
   toast.classList.add(isWake ? "is-wake" : "is-sleep");
 
-  requestAnimationFrame(() => toast.classList.add("is-visible"));
+  toast.getBoundingClientRect();
+  requestAnimationFrame(() => {
+    toast.classList.add("is-visible");
+  });
   playActionSound(action);
 
   toastTimer = setTimeout(() => {
     toast.classList.remove("is-visible");
-    toastTimer = setTimeout(() => {
+    toastHideTimer = setTimeout(() => {
       toast.hidden = true;
+      toast.setAttribute("hidden", "");
     }, 260);
   }, 3600);
 };
