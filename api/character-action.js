@@ -18,23 +18,23 @@ const characters = {
       "Zeke spí. Nikdo tomu nevěří dost na to, aby se přestal ohlížet."
     ]
   },
-  violet: {
-    name: "Violet Crowe",
-    portrait: "images/Violet.png",
-    wakeTitle: "Violet je vzhůru",
-    sleepTitle: "Violet spí",
-    footer: "Noční zápis • West Haven",
+  scarlet: {
+    name: "Scarlet Hart",
+    portrait: "images/scarlet.png",
+    wakeTitle: "Scarlet je vzhuru",
+    sleepTitle: "Scarlet usnula",
+    footer: "Ucety a dopisy - West Haven",
     wakeMessages: [
-      "Violet otevřela oči a místnost se tvářila klidněji, než měla.",
-      "Violet se probudila bez hluku. Přesto se zdálo, že všechna tajemství udělala krok zpátky.",
-      "Violet je vzhůru a každé nevyřčené slovo v místnosti působí hlasitěji.",
-      "Violet nespí a pravda si dnes raději sedne rovně."
+      "Scarlet otevira oci a West Haven ma zase nekoho, kdo umi spocitat vic nez jen penize.",
+      "Scarlet je vzhuru. Tichy dopis od Violet dnes znovu ztezkne v kapse.",
+      "Scarlet vstala s klidem obchodnice, ktera driv posloucha, nez promluvi.",
+      "Scarlet je na nohou a William ma dnes o jeden pevny bod vic."
     ],
     sleepMessages: [
-      "Violet spí a West Haven se tváří, že to nic neznamená.",
-      "Violet zavřela oči. Někteří lidé přesto dál hlídají, co říkají.",
-      "Violet odpočívá. Její klid působí upraveněji než pravda.",
-      "Violet spí. West Haven si na chvíli může myslet, že mu něco neuniká."
+      "Scarlet usnula a ucetni knihy West Havenu mohou na chvili zustat zavrene.",
+      "Scarlet odpociva. Dopis od Violet zustava tam, kde ho nikdo nema najit.",
+      "Scarlet zavrela oci, ale jeji starosti o Williama nezmizely.",
+      "Scarlet spi. Zitra bude znovu pocitat dluhy, sliby i pravdu."
     ]
   },
   william: {

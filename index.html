@@ -44,6 +44,8 @@
           <button type="button" id="wakeButton">Probudit</button>
           <button type="button" id="sleepButton">Uspat</button>
           <button type="button" id="characterInfoButton">Postava</button>
+          <button type="button" id="cemeteryButton">Hrbitov</button>
+          <button type="button" id="databaseButton">Databaze postav</button>
           <button type="button" id="adminButton" hidden>Admin</button>
           <button type="button" id="logoutButton">Odhlásit</button>
         </div>
@@ -83,7 +85,7 @@
       <section class="family-status-grid" aria-label="Stav rodiny">
         <article class="status-strip">
           <span>Vzhůru</span>
-          <strong id="familyAwakeCount">0 / 5</strong>
+          <strong id="familyAwakeCount">0 / 6</strong>
         </article>
         <article class="status-strip">
           <span>Dnes celkem</span>
@@ -300,6 +302,24 @@
           <p id="characterPagePersonality"></p>
         </article>
       </section>
+    </section>
+
+    <section class="cemetery-page app-page" id="cemeteryPage" aria-label="Hrbitov" hidden>
+      <section class="archive-hero">
+        <p class="eyebrow">Pametni kniha</p>
+        <h2>Hrbitov West Havenu</h2>
+        <p>Postavy, jejichz pribeh uz skoncil, ale jejich stopa v rodine zustava.</p>
+      </section>
+      <section class="legacy-grid" id="cemeteryGrid"></section>
+    </section>
+
+    <section class="database-page app-page" id="databasePage" aria-label="Databaze postav" hidden>
+      <section class="archive-hero">
+        <p class="eyebrow">Rodinny archiv</p>
+        <h2>Databaze postav</h2>
+        <p>Prehled hracu, Discord uctu a postav, ktere patri do historie Crowe Family 2.0.</p>
+      </section>
+      <section class="player-database" id="playerDatabase"></section>
     </section>
   </main>
 

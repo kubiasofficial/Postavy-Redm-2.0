@@ -35,31 +35,33 @@ Do roku 1899 tak přichází jako muž bez domova, bez skutečné minulosti, kte
     quote: "„Muž, který přežil vlastní smrt a od té doby hledí na svět, jako by se do něj už nikdy úplně nevrátil.“"
   },
   {
-    id: "violet",
+    id: "scarlet",
     discordId: "795365012494483486",
-    listName: "Violet",
-    name: "Violet Crowe",
-    role: "Manipulátorka / střelkyně / stratég",
-    age: "24 let",
-    origin: "Louisiana",
+    listName: "Scarlet",
+    name: "Scarlet Hart",
+    role: "Obchodnice / ucetni",
+    age: "22 let",
+    origin: "Richmond, Virginie",
     year: "1899",
-    statusText: "Ve stínu",
-    portrait: "images/Violet.png",
-    overview: "Violet Crowe je nejmladší ze sourozenců Croweových. Vyrůstala ve světě, kde přežití bylo důležitější než nevinnost. Je tichá, bystrá a nebezpečně klidná.",
+    statusText: "Novy zivot na zapade",
+    portrait: "images/scarlet.png",
+    overview: "Scarlet Hart je mladsi sestra Williama Harta. Vyrustala mezi regaly rodinneho obchodu, kde se naucila pocitat penize, vest knihy, vyjednavat a cist lidi driv, nez sami priznaji, co opravdu chteji.",
     overviewBlocks: [
-      { title: "Vztahy", text: "K Zekemu cítí respekt a vidí v něm člověka, který jí rozumí beze slov. Silase respektuje, ale ví, že si před ním musí hlídat i to, co zůstane nevyřčené." },
-      { title: "Motivace", text: "Udržet si svobodu, chránit svůj klid a přežít bez toho, aby ji někdo znovu proměnil v nástroj pro cizí vůli." }
+      { title: "Rodina", text: "Dcera Samuela a Margaret Hartovych a mladsi sestra Williama. S Williamem vyrustali kazdy v jinem svete, ale vzdy drzeli pri sobe." },
+      { title: "Motivace", text: "Prijela na zapad po telegramu o smrti Violet, aby byla Williamovi oporou. Postupne ale zjistuje, ze West Haven muze byt i jejim vlastnim novym zacatkem." }
     ],
-    lore: `Violet Crowe vyrůstala s vědomím, že chyba může člověka stát víc než jen bolest. Jako nejmladší ze sourozenců Croweových se brzy naučila pozorovat, skrývat emoce a odhadovat nebezpečí dřív, než dostane jméno.
+    lore: `Scarlet Hart se narodila 17. dubna 1877 v Richmondu ve Virginii. Vyrustala mezi regaly rodinneho obchodu se smisenym zbozim, kde uz jako mala pomahala rodicum obsluhovat zakazniky, pocitat penize, zapisovat objednavky a starat se o zasoby.
 
-Naučila se spíš číst ticho než slova. Když ostatní křičeli, mlčela. Když se kolem ní lidé snažili získat převahu silou, hledala slabé místo v jejich jistotě. Právě proto je nebezpečná jinak než Zeke nebo Silas. Nepotřebuje být nejhlasitější v místnosti. Stačí jí vědět, co kdo chce, čeho se bojí a kdy ztratí kontrolu.
+Otec Samuel Hart vedl obchod pevnou rukou a matka Margaret ji ucila spolecenskemu chovani, trpelivosti a tomu, ze dobre zvolene slovo muze mit vetsi cenu nez zvednuty hlas. Scarlet se diky tomu naucila jednat s lidmi, poznavat kvalitu zbozi a rozpoznat, kdy nekdo mluvi pravdu a kdy se jen snazi ziskat vyhodu.
 
-William Hart se pro ni stal někým, komu dokázala věřit víc než ostatním. Ne proto, že by ji zachránil, ale protože se ji nikdy nepokusil vlastnit. Jejich pouto je tiché, komplikované a pevné právě tím, že stojí na respektu.
+William byl pravym opakem. Zatimco Scarlet travila dny v obchode, on byl od rana do vecera na rodinnem ranci. Staral se o kone, pomahal s dobytkem a postupne se naucil krotit divoke byky. Kazdy z nich vyrustal v jinem prostredi, ale vzdy drzeli pri sobe. Prave William ji naucil jezdit na koni a zachazet s revolverem.
 
-V roce 1899 působí Violet jako žena, která se pohybuje mezi lidmi s opatrností i jistotou. Umí manipulovat, dokáže získat důvěru během několika minut a když už musí sáhnout po zbrani, většinou je pozdě na lítost.`,
-    appearance: "Štíhlá žena vysoká 165 cm s tmavými vlasy, bledší tváří a neklidným, přesto soustředěným pohledem. Nosí tmavé elegantní oblečení s fialovými detaily, praktický pásek se zbraní a doplňky, které působí jemně, dokud si člověk nevšimne, jak připravená ve skutečnosti je.",
-    personality: "Výborná v manipulaci a čtení lidí. Dokáže získat důvěru během několika minut, skvěle pozoruje okolí a umí lhát bez emocí. Preferuje slova před zbraní, ale není bezbranná.",
-    quote: "„Lidé říkají mnohem víc, když si myslí, že neposloucháš.“"
+Nekolik mesicu pred smrti Violet obdrzela Scarlet dopis. Stalo v nem: "Kdyby se mi neco stalo, postarej se o Williama. A prosim... neobvinuj me bratry. Udelali vsechno, co dokazali." Scarlet ten dopis nosi stale u sebe a nikomu o nem nerekla.
+
+Kdyz ji William poslal telegram o smrti Violet, bez vahani opustila rodice i rodinny obchod a vydala se za bratrem. Puvodne prijela jen proto, aby mu byla oporou behem nejtezsich dni. Jenze cim dele zustavala, tim vic si uvedomovala, ze William uz na zapade nasel novy domov. A mozna by si ho zde mohla vybudovat i ona.`,
+    appearance: "Mlada zena s kratkymi rezavohnedymi vlasy, bledsi pleti a klidnym pohledem. Nosi tmave elegantni saty s odhalenymi rameny a svetlym detailem v pase. Pusobi upravene, ale ne krehce.",
+    personality: "Klidna, rozvazna, sebevedoma a trpeliva. Nejedna zbrkle, radeji nejprve posloucha a az potom mluvi. Je verna rodine a dokaze zachovat chladnou hlavu i pod tlakem.",
+    quote: "\"Ne kazdy obchod se zapisuje do ucetni knihy. Nektere dluhy nosi clovek u srdce.\""
   },
   {
     id: "william",
@@ -175,6 +177,21 @@ Roku 1899 se snazi najit misto, kde bude jeho sila k necemu dobra. Nepotrebuje b
   }
 ];
 
+const retiredCharacters = [
+  {
+    id: "violet",
+    discordId: "795365012494483486",
+    playerLabel: "Hrac Violet / Scarlet",
+    listName: "Violet",
+    name: "Violet Crowe",
+    role: "Manipulatorka / strelkyne / strateg",
+    portrait: "images/Violet.png",
+    status: "Zesnula",
+    totalMs: (146 * 60 + 38) * 60 * 1000,
+    epitaph: "Violet stravila ve West Havenu 146h 38min. Jeji pribeh skoncil, ale dopis, ktery zanechala Scarlet, stale meni osudy zivych."
+  }
+];
+
 const managedCharactersKey = "croweFamily2ManagedCharacters";
 
 const cloneCharacter = (character) => ({
@@ -247,16 +264,34 @@ const normalizeCharacter = (draft) => {
   };
 };
 
+const migrateActiveCharacters = (list) => {
+  const normalized = (Array.isArray(list) ? list : [])
+    .map(normalizeCharacter)
+    .filter((character) => character.id !== "violet");
+  const scarlet = cloneCharacter(defaultCharacters.find((character) => character.id === "scarlet"));
+  const hasScarlet = normalized.some((character) => character.id === "scarlet");
+  const next = hasScarlet
+    ? normalized.map((character) => character.id === "scarlet" ? normalizeCharacter({ ...scarlet, ...character }) : character)
+    : [
+      ...normalized.slice(0, 1),
+      scarlet,
+      ...normalized.slice(1)
+    ];
+  return next.filter((character, index, all) => (
+    all.findIndex((item) => item.id === character.id) === index
+  ));
+};
+
 const loadManagedCharacters = () => {
   try {
     const saved = JSON.parse(localStorage.getItem(managedCharactersKey) || "null");
     if (Array.isArray(saved) && saved.length) {
-      return saved.map(normalizeCharacter);
+      return migrateActiveCharacters(saved);
     }
   } catch (error) {
     console.warn("Managed characters could not be loaded.", error);
   }
-  return defaultCharacters.map(cloneCharacter);
+  return migrateActiveCharacters(defaultCharacters);
 };
 
 let characters = loadManagedCharacters();
@@ -294,6 +329,8 @@ const refs = {
   zekeSideRight: document.getElementById("zekeSideRight"),
   characterPage: document.getElementById("characterPage"),
   adminPage: document.getElementById("adminPage"),
+  cemeteryPage: document.getElementById("cemeteryPage"),
+  databasePage: document.getElementById("databasePage"),
   backToMenuButton: document.getElementById("backToMenuButton"),
   profileButton: document.getElementById("profileButton"),
   profileAvatar: document.getElementById("profileAvatar"),
@@ -307,6 +344,8 @@ const refs = {
   menuSleepButton: document.getElementById("menuSleepButton"),
   menuCharacterButton: document.getElementById("menuCharacterButton"),
   characterInfoButton: document.getElementById("characterInfoButton"),
+  cemeteryButton: document.getElementById("cemeteryButton"),
+  databaseButton: document.getElementById("databaseButton"),
   adminButton: document.getElementById("adminButton"),
   openCharacterPageButton: document.getElementById("openCharacterPageButton"),
   logoutButton: document.getElementById("logoutButton"),
@@ -387,6 +426,8 @@ const refs = {
   characterOverviewBlocks: document.getElementById("characterOverviewBlocks"),
   characterPageAppearance: document.getElementById("characterPageAppearance"),
   characterPagePersonality: document.getElementById("characterPagePersonality"),
+  cemeteryGrid: document.getElementById("cemeteryGrid"),
+  playerDatabase: document.getElementById("playerDatabase"),
   nightReportModal: document.getElementById("nightReportModal"),
   nightReportInput: document.getElementById("nightReportInput"),
   nightReportMeta: document.getElementById("nightReportMeta"),
@@ -538,13 +579,20 @@ const getWeekMs = (characterId, state) => {
 const setAppPage = (page) => {
   const isCharacter = page === "character";
   const isAdmin = page === "admin";
-  refs.menuPage.hidden = isCharacter || isAdmin;
+  const isCemetery = page === "cemetery";
+  const isDatabase = page === "database";
+  const isSubPage = isCharacter || isAdmin || isCemetery || isDatabase;
+  refs.menuPage.hidden = isSubPage;
   refs.characterPage.hidden = !isCharacter;
   refs.adminPage.hidden = !isAdmin;
-  refs.menuPage.classList.toggle("is-active", !isCharacter && !isAdmin);
+  refs.cemeteryPage.hidden = !isCemetery;
+  refs.databasePage.hidden = !isDatabase;
+  refs.menuPage.classList.toggle("is-active", !isSubPage);
   refs.characterPage.classList.toggle("is-active", isCharacter);
   refs.adminPage.classList.toggle("is-active", isAdmin);
-  refs.backToMenuButton.hidden = !isCharacter && !isAdmin;
+  refs.cemeteryPage.classList.toggle("is-active", isCemetery);
+  refs.databasePage.classList.toggle("is-active", isDatabase);
+  refs.backToMenuButton.hidden = !isSubPage;
   refs.profileMenu.hidden = true;
   refs.profileButton.setAttribute("aria-expanded", "false");
   window.scrollTo(0, 0);
@@ -778,6 +826,8 @@ const refreshAfterCharacterAdminChange = (selectedId) => {
   if (!refs.characterPage.hidden) {
     renderCharacterPage(getCharacter(refs.characterPage.dataset.characterId) || activeCharacter);
   }
+  if (!refs.cemeteryPage.hidden) renderCemeteryPage();
+  if (!refs.databasePage.hidden) renderPlayerDatabase();
 };
 
 const saveAdminCharacter = () => {
@@ -1088,6 +1138,84 @@ const renderCharacterPage = (character = activeCharacter) => {
   renderEventList(
     refs.characterEventList,
     events.filter((event) => event.characterId === character.id)
+  );
+};
+
+const renderCemeteryPage = () => {
+  refs.cemeteryGrid.replaceChildren(
+    ...retiredCharacters.map((character) => {
+      const card = document.createElement("article");
+      card.className = "legacy-card";
+
+      const image = document.createElement("img");
+      image.src = character.portrait;
+      image.alt = character.name;
+
+      const body = document.createElement("div");
+      const status = document.createElement("span");
+      status.className = "legacy-status";
+      status.textContent = character.status;
+      const title = document.createElement("h3");
+      title.textContent = character.name;
+      const meta = document.createElement("p");
+      meta.textContent = `${character.playerLabel} - Discord ${character.discordId}`;
+      const time = document.createElement("strong");
+      time.textContent = `${character.name} stravila ve West Havenu ${formatCompactDuration(character.totalMs)}.`;
+      const epitaph = document.createElement("p");
+      epitaph.textContent = character.epitaph;
+
+      body.append(status, title, meta, time, epitaph);
+      card.append(image, body);
+      return card;
+    })
+  );
+};
+
+const renderPlayerDatabase = () => {
+  const history = [
+    ...characters.map((character) => ({ ...character, databaseStatus: "Aktivni" })),
+    ...retiredCharacters.map((character) => ({ ...character, databaseStatus: "Zesnula" }))
+  ].reduce((map, character) => {
+    const key = character.discordId || "nezname";
+    map.set(key, [...(map.get(key) || []), character]);
+    return map;
+  }, new Map());
+
+  refs.playerDatabase.replaceChildren(
+    ...Array.from(history.entries()).map(([discordId, playerCharacters]) => {
+      const row = document.createElement("article");
+      row.className = "player-record";
+
+      const header = document.createElement("div");
+      const title = document.createElement("h3");
+      title.textContent = `Discord ${discordId}`;
+      const count = document.createElement("span");
+      count.textContent = `${playerCharacters.length} postav`;
+      header.append(title, count);
+
+      const list = document.createElement("div");
+      list.className = "player-character-list";
+      playerCharacters.forEach((character) => {
+        const item = document.createElement("div");
+        item.className = `player-character ${character.databaseStatus === "Zesnula" ? "is-retired" : ""}`;
+        const image = document.createElement("img");
+        image.src = character.portrait;
+        image.alt = character.name;
+        const textWrap = document.createElement("div");
+        const name = document.createElement("strong");
+        name.textContent = character.name;
+        const role = document.createElement("small");
+        role.textContent = character.role;
+        const status = document.createElement("span");
+        status.textContent = character.databaseStatus;
+        textWrap.append(name, role, status);
+        item.append(image, textWrap);
+        list.appendChild(item);
+      });
+
+      row.append(header, list);
+      return row;
+    })
   );
 };
 
@@ -1455,7 +1583,7 @@ const sleepCharacter = async (reportText = "") => {
 
 const applyRemoteCharacters = (remoteCharacters) => {
   if (!Array.isArray(remoteCharacters) || !remoteCharacters.length) return;
-  characters = remoteCharacters.map(normalizeCharacter);
+  characters = migrateActiveCharacters(remoteCharacters);
   saveManagedCharacters();
   activeCharacter = getCharacter(activeCharacter?.id) || getCharacter(session?.characterId) || characters[0];
   setupAdmin();
@@ -1565,6 +1693,9 @@ const boot = async () => {
     return;
   }
 
+  if (session.characterId === "violet") {
+    session.characterId = "scarlet";
+  }
   activeCharacter = getCharacter(session.characterId) || characters[0];
   if (!activeCharacter) {
     refs.authError.textContent = "Discord účet není napojený na povolenou postavu.";
@@ -1597,6 +1728,14 @@ refs.profileButton.addEventListener("click", () => {
 refs.adminButton.addEventListener("click", () => {
   setupAdmin();
   setAppPage("admin");
+});
+refs.cemeteryButton.addEventListener("click", () => {
+  renderCemeteryPage();
+  setAppPage("cemetery");
+});
+refs.databaseButton.addEventListener("click", () => {
+  renderPlayerDatabase();
+  setAppPage("database");
 });
 refs.backToMenuButton.addEventListener("click", () => setAppPage("menu"));
 refs.wakeButton.addEventListener("click", () => runCharacterAction("wake"));

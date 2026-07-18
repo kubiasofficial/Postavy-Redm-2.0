@@ -4,10 +4,10 @@ const characters = {
     portrait: "images/zeke.png",
     color: 0x9d2634
   },
-  violet: {
-    name: "Violet Crowe",
-    portrait: "images/Violet.png",
-    color: 0x7f4ea3
+  scarlet: {
+    name: "Scarlet Hart",
+    portrait: "images/scarlet.png",
+    color: 0xb88945
   },
   william: {
     name: "William Hart",

@@ -1,7 +1,7 @@
 const DISCORD_API_BASE = "https://discord.com/api/v10";
 const allowedCharacters = {
   "417061947759001600": "zeke",
-  "795365012494483486": "violet",
+  "795365012494483486": "scarlet",
   "550294660090691594": "william",
   "1454130138240520407": "eleanor",
   "702917011235143800": "silas",
