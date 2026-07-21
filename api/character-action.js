@@ -56,21 +56,23 @@ const characters = {
       "William spí a West Haven se učí stát rovně bez jeho pohledu."
     ]
   },
-  eleanor: {
-    name: 'Eleanor "Ellie" Whitmore',
-    portrait: "images/elie.png",
-    wakeTitle: "Ellie je vzhůru",
-    sleepTitle: "Ellie usnula",
-    footer: "Tichý zápis • West Haven",
+  adelaide: {
+    name: "Adelaide Rose Blackwood",
+    portrait: "images/adelaide.png",
+    wakeTitle: "Adelaide je vzhuru",
+    sleepTitle: "Adelaide usnula",
+    footer: "Stopa Blackwoodu - West Haven",
     wakeMessages: [
-      "Ellie otevřela oči a místnost působila o něco méně tvrdě.",
-      "Eleanor Whitmore je vzhůru. Někdo ve West Havenu dnes možná dostane trpělivější odpověď.",
-      "Ellie se probudila s klidem člověka, který i nový den zkusí nejdřív pochopit."
+      "Adelaide otevira oci a prvni pohled venuje dverim, oknu a ceste ven.",
+      "Adelaide je vzhuru. Jmeno Blackwood dnes zustava pod rukavem, ale minulost jde porad za ni.",
+      "Addie vstala potichu. Ghost venku vi driv nez ostatni, ze den zacal.",
+      "Adelaide je na nohou a West Haven ma dalsi duvod davat pozor na slabsi."
     ],
     sleepMessages: [
-      "Ellie usnula a West Haven si na chvíli nechal své obavy pro sebe.",
-      "Eleanor odpočívá. Ticho kolem ní je měkké, ale ne slabé.",
-      "Ellie spí a dnešní rozhovory konečně ztratily ostří."
+      "Adelaide usnula, ale i ve spanku zustava zady ke zdi.",
+      "Addie odpociva. Revolver mlci a značka Blackwoodu zustava skryta pod rukavem.",
+      "Adelaide zavrela oci a noc si na chvili vzala jeji strachy k sobe.",
+      "Adelaide spi. Ghost venku drzi ticho lepe nez vetsina lidi."
     ]
   },
   silas: {

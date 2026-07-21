@@ -14,10 +14,10 @@ const characters = {
     portrait: "images/William.png",
     color: 0xb88945
   },
-  eleanor: {
-    name: 'Eleanor "Ellie" Whitmore',
-    portrait: "images/elie.png",
-    color: 0xd6a4a8
+  adelaide: {
+    name: "Adelaide Rose Blackwood",
+    portrait: "images/adelaide.png",
+    color: 0x8a5b3a
   },
   silas: {
     name: 'Silas "Sil" Crowe',
